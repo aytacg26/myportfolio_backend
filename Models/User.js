@@ -27,10 +27,20 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  isConfirmed: {
+  verificationId: {
+    type: String,
+  },
+  isVerified: {
     //When user confirms his/her email this will be true
     type: Boolean,
     default: false,
+  },
+  avatar: {
+    type: String,
+  },
+  userLanguage: {
+    type: String,
+    default: 'en',
   },
   date: {
     type: Date,

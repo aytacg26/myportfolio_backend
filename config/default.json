@@ -1,3 +1,6 @@
 {
-  "mongoURI": "mongodb+srv://aytacg26:97Ay345897TaC10711453GuLeY@myportfolio.9ym8k.mongodb.net/myportfolioDB?retryWrites=true&w=majority"
+  "mongoURI": "mongodb+srv://aytacg26:97Ay345897TaC10711453GuLeY@myportfolio.9ym8k.mongodb.net/myportfolioDB?retryWrites=true&w=majority",
+  "jwtSecret": "MyPortfolio2021aytacGuley1453107197Ay345897TaC1980-*/GuLeY_AyTaC972611",
+  "sendGridAPIKeyId": "1E1cuSofR5GzTqi6U071FQ",
+  "sendGridAPIKey": "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"
 }
