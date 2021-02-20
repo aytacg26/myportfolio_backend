@@ -151,10 +151,63 @@ const verifyEmail = async (req, res) => {
     errorMessage(res);
   }
 };
-const UserController = {
+
+//PUT api/users/privacy/:id
+const privacySettings = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    const {
+      privateAccount,
+      showActivityStatus,
+      postSharing,
+      useTextMessage,
+      useEmailMessage,
+      useAuthenticationApp,
+    } = req.body;
+
+    console.log(req.body);
+
+    if (!user) {
+      return errorMessage(res, 400, 'Please login');
+    }
+
+    user.privacy.privateAccount = privateAccount;
+    user.privacy.showActivityStatus = showActivityStatus;
+    user.privacy.postSharing = postSharing;
+
+    if (useTextMessage == true) {
+      user.privacy.twoFactorAuth.useTextMessage = useTextMessage;
+      user.privacy.twoFactorAuth.useEmailMessage = false;
+      user.privacy.twoFactorAuth.useAuthenticationApp = false;
+    } else if (useEmailMessage == true) {
+      user.privacy.twoFactorAuth.useTextMessage = false;
+      user.privacy.twoFactorAuth.useEmailMessage = useEmailMessage;
+      user.privacy.twoFactorAuth.useAuthenticationApp = false;
+    } else if (useAuthenticationApp == true) {
+      user.privacy.twoFactorAuth.useTextMessage = false;
+      user.privacy.twoFactorAuth.useEmailMessage = false;
+      user.privacy.twoFactorAuth.useAuthenticationApp = useAuthenticationApp;
+    } else {
+      user.privacy.twoFactorAuth.useTextMessage = useTextMessage;
+      user.privacy.twoFactorAuth.useEmailMessage = useEmailMessage;
+      user.privacy.twoFactorAuth.useAuthenticationApp = useAuthenticationApp;
+    }
+
+    await user.save();
+    const userView = UserViewModel(user);
+
+    res.json(userView);
+  } catch (error) {
+    console.error(error.message);
+    errorMessage(res);
+  }
+};
+
+const UserController = Object.freeze({
   UserRegistration,
   GetAllUsers,
   verifyEmail,
-};
+  privacySettings,
+});
 
 export default UserController;

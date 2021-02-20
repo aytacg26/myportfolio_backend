@@ -1,6 +1,7 @@
 import express from 'express';
 import { check, validationResult } from 'express-validator';
 import UserController from '../Controllers/UserController/UserController.js';
+import authMiddleware from '../Middleware/authMiddleware.js';
 
 export const usersRouter = express.Router();
 
@@ -52,6 +53,9 @@ usersRouter.post(
     check('password', 'Minimum length for password must be 6').isLength({
       min: 6,
     }),
+    check('password', 'Maximum length for password must be 20').isLength({
+      max: 20,
+    }),
     check(
       'confirmPassword',
       'password confirmation field must have the same value as the password field'
@@ -69,5 +73,52 @@ usersRouter.post(
     }
 
     UserController.UserRegistration(req, res);
+  }
+);
+
+/**
+ * @route           PUT api/users/updateprivacy/:id
+ * @description     User will update his/her privacy settings
+ * @access          Private
+ */
+usersRouter.put(
+  '/privacy/:id',
+  [
+    authMiddleware,
+    [
+      check('privateAccount', 'Must be a boolean with true or false')
+        .trim()
+        .isBoolean()
+        .escape(),
+      check('showActivityStatus', 'Must be boolean with true or false')
+        .trim()
+        .isBoolean()
+        .escape(),
+      check('postSharing', 'Must be boolean with true or false')
+        .trim()
+        .isBoolean()
+        .escape(),
+      check('useTextMessage', 'Must be boolean with true or false')
+        .trim()
+        .isBoolean()
+        .escape(),
+      check('useEmailMessage', 'Must be boolean with true or false')
+        .trim()
+        .isBoolean()
+        .escape(),
+      check('useAuthenticationApp', 'Must be boolean with true or false')
+        .trim()
+        .isBoolean()
+        .escape(),
+    ],
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors });
+    }
+
+    UserController.privacySettings(req, res);
   }
 );

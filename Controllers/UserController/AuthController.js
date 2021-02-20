@@ -79,9 +79,9 @@ const loginUser = async (req, res) => {
   }
 };
 
-const AuthController = {
+const AuthController = Object.freeze({
   getAuthUserData,
   loginUser,
-};
+});
 
 export default AuthController;
