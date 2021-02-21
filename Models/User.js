@@ -22,6 +22,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  profession: {
+    type: String,
+  },
   isActive: {
     //when user confirms his/her email this will be true, if user deactives his/her accout, this will be false
     type: Boolean,

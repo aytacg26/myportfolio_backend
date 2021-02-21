@@ -1,0 +1,25 @@
+When an auth user accepts a follow request from requester :
+1- Add requester to the list of followers of auth User
+2- Remove requester from the list of followRequestReceived List of auth user
+3- Add auth user to the followings list of requester
+4- Remove auth user from the followingRequestSend List of requester
+5- Create document for requester and auth user in followers collection, requester will follow auth user, for this reason user is auth user, follower is requester
+6- Create document for auth user and requester in followings collection, requester will follow auth user, therefore in followings, 
+user is requester and auth user is the followed by requester, that is auth user is the following of requester
+7- Remove user's and requester's received follow request, user is the user in receivedFollowRequest document and requester is fromUser in receivedFollowRequest document
+8- Remove requester's and user's send follow request, user is the requester who send the follow request and auth user is toUser in sendFollowRequest document
+
+When an auth user rejects a follow request :
+1- Add requester to followingRequestRejected List in his/her document, this list will not be visible by user but he/she will be able to see followRequestRejected List in his/her document
+2- Add requester to followRequestRejected List in auth user document, this list will be seen auth user
+3- Remove auth user from followingRequestSent list of requester
+4- Remove requester from followRequestReceived list of auth user.
+5- Delete sendFollowRequest of requester and user 
+6- Delete receivedFollowRequest of user and requester
+7- Add requester to RejectedFollower document, user is auth user who rejects the follow request, rejected user is the requester to send the follow requset to auth user
+
+
+When an auth user deletes a user from his/her rejected follow requests list
+1-Remove requester and auth user document from rejectedFollowRequests collection (user is the auth user and requester is the rejectedUser in the document)
+2- Remove auth user from the followingRequestRejected list of requester
+3- Remove requester from the followRequestRejected list of auth user

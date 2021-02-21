@@ -2,6 +2,7 @@ import express from 'express';
 import { check, validationResult } from 'express-validator';
 import UserController from '../Controllers/UserController/UserController.js';
 import authMiddleware from '../Middleware/authMiddleware.js';
+import httpsMiddleware from '../Middleware/httpsMiddleware.js';
 
 export const usersRouter = express.Router();
 
@@ -11,7 +12,7 @@ export const usersRouter = express.Router();
  * @access          Public
  */
 
-usersRouter.get('/', (req, res) => {
+usersRouter.get('/', httpsMiddleware, (req, res) => {
   UserController.GetAllUsers(res);
 });
 
@@ -20,9 +21,13 @@ usersRouter.get('/', (req, res) => {
  * @description     This will verify the user email according to the token
  * @access          Public by user (Only user will be able to send this code)
  */
-usersRouter.post('/verifyemail/:id/:verificationToken', (req, res) => {
-  UserController.verifyEmail(req, res);
-});
+usersRouter.post(
+  '/verifyemail/:id/:verificationToken',
+  httpsMiddleware,
+  (req, res) => {
+    UserController.verifyEmail(req, res);
+  }
+);
 
 /**
  * @route           POST api/users
@@ -35,34 +40,37 @@ usersRouter.post(
   '/',
 
   [
-    check('name', 'Name is required')
-      .not()
-      .isEmpty()
-      .isLength({ min: 2 })
-      .trim()
-      .escape(),
-    check('surname', 'Surname is required')
-      .not()
-      .isEmpty()
-      .isLength({ min: 2 })
-      .trim()
-      .escape(),
-    check('email', 'Email is required').not().isEmpty(),
-    check('email', 'Valid email is required').isEmail().normalizeEmail(),
-    check('password', 'Password is required').not().isEmpty(),
-    check('password', 'Minimum length for password must be 6').isLength({
-      min: 6,
-    }),
-    check('password', 'Maximum length for password must be 20').isLength({
-      max: 20,
-    }),
-    check(
-      'confirmPassword',
-      'password confirmation field must have the same value as the password field'
-    )
-      .exists()
-      .custom((value, { req }) => value === req.body.password),
-    check('gender', 'Gender is required').not().isEmpty(),
+    httpsMiddleware,
+    [
+      check('name', 'Name is required')
+        .not()
+        .isEmpty()
+        .isLength({ min: 2 })
+        .trim()
+        .escape(),
+      check('surname', 'Surname is required')
+        .not()
+        .isEmpty()
+        .isLength({ min: 2 })
+        .trim()
+        .escape(),
+      check('email', 'Email is required').not().isEmpty(),
+      check('email', 'Valid email is required').isEmail().normalizeEmail(),
+      check('password', 'Password is required').not().isEmpty(),
+      check('password', 'Minimum length for password must be 6').isLength({
+        min: 6,
+      }),
+      check('password', 'Maximum length for password must be 20').isLength({
+        max: 20,
+      }),
+      check(
+        'confirmPassword',
+        'password confirmation field must have the same value as the password field'
+      )
+        .exists()
+        .custom((value, { req }) => value === req.body.password),
+      check('gender', 'Gender is required').not().isEmpty(),
+    ],
   ],
 
   (req, res) => {
@@ -84,6 +92,7 @@ usersRouter.post(
 usersRouter.put(
   '/privacy/:id',
   [
+    httpsMiddleware,
     authMiddleware,
     [
       check('privateAccount', 'Must be a boolean with true or false')
