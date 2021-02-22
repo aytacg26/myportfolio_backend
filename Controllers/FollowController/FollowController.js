@@ -14,8 +14,11 @@ import { FollowListViewModel } from '../../ViewModels/FollowListViewModel.js';
 const getAllFollowers = async (req, res) => {
   //we will get all followers of the auth user.
   try {
-    //Find Followers from the userId
-    const userFollowers = await Follower.find({ user: req.user.id });
+    //Find Followers from the userId, we used projection to prevent fetching user data and user _id
+    const userFollowers = await Follower.find(
+      { user: req.user.id },
+      { follower: 1, _id: 0 }
+    );
 
     const followers = FollowListViewModel(userFollowers, 'follower');
 
@@ -40,7 +43,11 @@ const getAllFollowers = async (req, res) => {
 //This will get all followings of the authenticated user
 const getAllFollowings = async (req, res) => {
   try {
-    const userFollowings = await Following.find({ user: req.user.id });
+    //We used projection to prevent fetching user _id and other data, and we are only fetching following data
+    const userFollowings = await Following.find(
+      { user: req.user.id },
+      { following: 1, _id: 0 }
+    );
 
     const followings = FollowListViewModel(userFollowings, 'following');
 
@@ -65,7 +72,7 @@ const getAllFollowings = async (req, res) => {
 const getAllReceivedFollowRequests = async (req, res) => {
   //This will give the list of all follow requests to auth user, auth user will be able to see all follow requests s/he received but not rejected or accepted by himself or herself
   //The rejected or accepted requests will be deleted from the follow requests list
-
+  //NOTE : USE PROJECTION TO PREVENT FETCHING UNNECESSARY DATA, in getAllFollowings and getAllFollowers we used projection!!
   try {
     const userFollowRequests = await ReceivedFollowRequest.find({
       user: req.user.id,
