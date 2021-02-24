@@ -23,3 +23,5 @@ When an auth user deletes a user from his/her rejected follow requests list
 1-Remove requester and auth user document from rejectedFollowRequests collection (user is the auth user and requester is the rejectedUser in the document)
 2- Remove auth user from the followingRequestRejected list of requester
 3- Remove requester from the followRequestRejected list of auth user
+
+

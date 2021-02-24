@@ -27,6 +27,10 @@ const FollowerSchema = new mongoose.Schema({
     profession: {
       type: String,
     },
+    amIFollowing: {
+      type: Boolean,
+      default: false,
+    },
     followStartDate: {
       type: Date,
       default: Date.now(),

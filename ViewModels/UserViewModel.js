@@ -9,6 +9,7 @@ export const UserViewModel = (
   const regDate = options.registrationDate === 1 ? user.date : '';
 
   return {
+    userId: user.id,
     name: userName,
     surname: userSurname,
     email: userEmail,

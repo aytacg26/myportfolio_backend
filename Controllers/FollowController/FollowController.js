@@ -38,6 +38,19 @@ const getAllFollowers = async (req, res) => {
   }
 };
 
+//This will not required because of revisions on User Model
+const getNumberOfFollowers = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const numOfFollowers = await Follower.countDocuments({ user: userId });
+
+    res.json({ 'Number Of Followers': numOfFollowers });
+  } catch (error) {
+    return errorMessage(res);
+  }
+};
+
 //api/follow/followings
 //GET
 //This will get all followings of the authenticated user
@@ -167,19 +180,15 @@ const removeFollower = async (req, res) => {
       );
     }
 
-    //Remove from the follower array of the user
-    const newFollowersList = authUser.followers.filter(
-      (follower) => follower.userId !== followerId
-    );
-    authUser.followers = newFollowersList;
+    //Remove follower from the numOfFollowers of user
+    const newFollowerSize = authUser.numOfFollowers - 1;
+    authUser.numOfFollowers = newFollowerSize;
 
     authUser.save();
 
-    //Remove from the following array of the removed user
-    const newFollowingList = follower.followings.filter(
-      (following) => following.userId !== req.user.id
-    );
-    follower.followings = newFollowingList;
+    //Remove from the numOfFollowings of the removed user
+    const newFollowingSize = follower.numOfFollowings - 1;
+    follower.numOfFollowings = newFollowingSize;
 
     follower.save();
 
@@ -238,16 +247,43 @@ const followUnfollow = async (req, res) => {
       );
     }
 
-    const isFollowing =
-      user.followings.filter((following) => following.id === toFollow).length >
-      0;
+    if (authUserId === toFollow) {
+      return errorMessage(
+        res,
+        400,
+        'User cannot follow own account',
+        messageCodes['Follow Id Conflict']
+      );
+    }
+
+    // const isFollowing =
+    //   user.followings.filter((following) => following.id === toFollow).length >
+    //   0;
+    //Follow tuşuna tıkladığımız kişiyi takip ediyor muyuz? Evet ise, takibi kaldıracağımız anlamına gelir.
+    const isFollowing = await Following.findOne({
+      user: authUserId,
+      'following.userId': toFollow,
+    });
 
     //Eğer takip ettiği bir kişi ise unfollow işlemi uygulanır
     if (isFollowing) {
+      //Burada unfollow işlemi gerçekleşti, authUser artık toFollow user'in follower listesinde değildir ve authUser'in follower listesinde toFollow user bulunarak eğer mevcut ise amIFollowing:false yapılır
+
       await Following.findOneAndDelete({
         user: authUserId,
         'following.userId': toFollow,
       });
+
+      const isInUserFollowers = await Follower.findOne({
+        user: authUserId,
+        'follower.userId': toFollow,
+      });
+
+      if (isInUserFollowers) {
+        isInUserFollowers.follower.amIFollowing = false;
+
+        isInUserFollowers.save();
+      }
 
       await Follower.findOneAndDelete({
         user: toFollow,
@@ -256,15 +292,12 @@ const followUnfollow = async (req, res) => {
 
       //kullanıcı hali hazırda takip ediyor ise unfollow işlemini gerçekleştirmek istiyor demektir yani kullanıcı takipten vazgeçmek istiyor demektir. Bu durumda
       //aynı zamanda followRequest gönderimi yapılan kişiye aslında unfollow işlemi uygulandığından, takipçi listesinden user çıkartılacaktır.
-      const userNewFollowingList = user.followings.filter(
-        (following) => following.userId !== toFollow
-      );
-      const toUserNewFollowerList = toUser.followers.filter(
-        (follower) => follower.userId !== authUserId
-      );
 
-      user.followings = userNewFollowingList;
-      toUser.followers = toUserNewFollowerList;
+      const userNewFollowingSize = user.numOfFollowings - 1;
+      user.numOfFollowings = userNewFollowingSize;
+
+      const unfollowedUserFollowerSize = toUser.numOfFollowers - 1;
+      toUser.numOfFollowers = unfollowedUserFollowerSize;
 
       await user.save();
       await toUser.save();
@@ -403,23 +436,49 @@ const followUnfollow = async (req, res) => {
       );
     }
 
-    user.followings = [
-      ...user.followings,
-      {
-        userId: toFollow,
-      },
-    ];
+    //AuthUser, toUser'in follower'i olur, bu durumda, authUser'in follower'leri arasında toUser var ise bulunur ve amIFollowing true yapılır.
+    const newFollowingSize = user.numOfFollowings + 1;
+    user.numOfFollowings = newFollowingSize;
+
+    const newFollowerSize = toUser.numOfFollowers + 1;
+    toUser.numOfFollowers = newFollowerSize;
+
     await user.save();
-
-    toUser.followers = [
-      ...toUser.followers,
-      {
-        userId: authUserId,
-      },
-    ];
-
     await toUser.save();
 
+    //1- authUser toUser'i takip etmeye başlayacak, yani authUser, toUser'in follower listesine eklenecek. Bu noktada, ilk kontrol etmemiz gereken, toUser, authUser'i takip ediyor mu?
+    //toUser authUser'i takip ediyor ise, authUser'in follower listesinde yer almaktadır, authUser'in follower listesinde yer alıyor ise, burada toUser follower listesine eklenecek olan authUser için
+    //amIFollowing (Yani toUser kendi kendine soruyor bu soruyu), sorunun cevabı true olacak
+
+    let toUserFollowsAuthUser = false;
+    const isAuthFollowedByToUser = await Follower.findOne({
+      user: authUserId,
+      'follower.userId': toFollow,
+    });
+
+    if (isAuthFollowedByToUser) {
+      toUserFollowsAuthUser = true;
+    }
+
+    //Bu noktada karşılaşacağımız problem, eğer authUser takip etmeye başladığında, toUser takip etmiyor ise toUserFollowsAuthUser false kalacak, ve sonradan toUser, authUser'i
+    //takip etmeye başlar ise toUser authUser konumuna geçecek ve toUser için amIFollowing false kalırken, şimdiki authUser ve sonraki toUser konumunda olan kişi için amIFollowing true olacaktır.
+    //Bu noktada, şu soruyu da sormamız gerekecek, toUser'in following listesinde authUser var mı? eğer var ise
+    const isInFollowingList = await Following.findOne({
+      user: toFollow,
+      'following.userId': authUserId,
+    });
+
+    if (isInFollowingList) {
+      const follower = await Follower.findOne({
+        user: authUserId,
+        'follower.userId': toFollow,
+      });
+      follower.follower.amIFollowing = true;
+
+      await follower.save();
+    }
+
+    //AuthUser'in following yani takip ettiği listeye toUser eklenecek
     const newFollowing = new Following({
       user: authUserId,
       following: {
@@ -433,6 +492,7 @@ const followUnfollow = async (req, res) => {
 
     await newFollowing.save();
 
+    //toUser'in follower listesine authUser eklenecek.
     const newFollower = new Follower({
       user: toFollow,
       follower: {
@@ -441,6 +501,7 @@ const followUnfollow = async (req, res) => {
         surname: user.surname,
         avatar: user.avatar,
         profession: user.profession,
+        amIFollowing: toUserFollowsAuthUser,
       },
     });
 
@@ -488,12 +549,10 @@ const acceptFollowRequest = async (req, res) => {
     }
 
     //Add requester to the list of followers of auth User
-    user.followers = [
-      ...user.followers,
-      {
-        userId: requesterId,
-      },
-    ];
+    const userNewFollowerSize = user.numOfFollowers + 1;
+    const requesterFollowingSize = requester.numOfFollowings + 1;
+    user.numOfFollowers = userNewFollowerSize;
+    requester.numOfFollowings = requesterFollowingSize;
 
     //Remove requester from the list of followRequestReceived List of auth user
     user.followRequestReceived = user.followRequestReceived.filter(
@@ -502,20 +561,40 @@ const acceptFollowRequest = async (req, res) => {
 
     await user.save();
 
-    //Add auth user to the followings list of requester
-    requester.followings = [
-      ...requester.followings,
-      {
-        userId: authUserId,
-      },
-    ];
-
     //Remove auth user from the followingRequestSend List of requester
     requester.followingRequestSend = requester.followingRequestSend.filter(
       (frs) => frs.userId !== authUserId
     );
 
     await requester.save();
+
+    //Requester'i authUser olarak takipçi olarak kabul ettiğimizde, authUser olarak, requester'in follower'leri arasındamıyız diye kontrol etmemiz lazım.
+    //eğer authUser Requester'in takipçileri arasında ise, authUser altında yer alan amIFollowing (yani requester follow ediyor mu) true olacaktır.
+    let follows = false;
+
+    const isInRequesterFollowers = await Follower.findOne({
+      user: requesterId,
+      'follower.userId': authUserId,
+    });
+
+    if (isInRequesterFollowers) {
+      follows = true;
+    }
+
+    const isInFollowingList = await Following.findOne({
+      user: authUserId,
+      'following.userId': requesterId,
+    });
+
+    if (isInFollowingList) {
+      const follower = await Follower.findOne({
+        user: requesterId,
+        'follower.userId': authUserId,
+      });
+      follower.follower.amIFollowing = true;
+
+      await follower.save();
+    }
 
     //create document for requester and auth user in followers collection, requester will follow auth user, for this reason user is auth user, follower is requester
     const follower = new Follower({
@@ -526,6 +605,7 @@ const acceptFollowRequest = async (req, res) => {
         surname: requester.surname,
         avatar: requester.avatar,
         profession: requester.profession,
+        amIFollowing: follows,
       },
     });
 
@@ -668,23 +748,67 @@ const rejectFollowRequest = async (req, res) => {
 
     return errorMessage(res);
   }
-
-  //1- add requester to followingRequestRejected List in his/her document, this list will not be visible by user but he/she will be able to see followRequestRejected List in his/her document
-  //2- add requester to followRequestRejected List in auth user document, this list will be seen auth user
-  //3- remove auth user from followingRequestSent list of requester
-  //4- remove requester from followRequestReceived list of auth user.
-  //5- delete sendFollowRequest of requester and user
-  //6- delete receivedFollowRequest of user and requester
-  //7- add requester to RejectedFollower document, user is auth user who rejects the follow request, rejected user is the requester to send the follow requset to auth user
 };
 
 //api/follow/deletereject/:idOfRequester
 //DELETE
 //This will delete the user whose follow request rejected from the rejectedFollowRequests of the auth user
 const deleteUserFromRejectList = async (req, res) => {
-  //1-Remove requester and auth user document from rejectedFollowRequests collection (user is the auth user and requester is the rejectedUser in the document)
-  //2- Remove auth user from the followingRequestRejected list of requester
-  //3- Remove requester from the followRequestRejected list of auth user
+  try {
+    //1-Remove requester and auth user document from rejectedFollowRequests collection (user is the auth user and requester is the rejectedUser in the document)
+    const authUserId = req.user.id;
+    const requesterId = req.params.idOfRequester;
+
+    await RejectedFollower.findOneAndDelete({
+      user: authUserId,
+      'rejectedUser.userId': requesterId,
+    });
+    //2- Remove auth user from the followingRequestRejected list of requester
+
+    //3- Remove requester from the followRequestRejected list of auth user
+    const requester = await User.findById(requesterId);
+    const authUser = await User.findById(authUserId);
+
+    if (!requester || !authUser) {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    const newFollowingReqRejectedList = requester.followingRequestRejected.filter(
+      (rej) => rej.userId !== authUserId
+    );
+    requester.followingRequestRejected = newFollowingReqRejectedList;
+
+    const newFollowReqRejectedList = authUser.followRequestRejected.filter(
+      (folReqRej) => folReqRej.userId !== requesterId
+    );
+    authUser.followRequestRejected = newFollowReqRejectedList;
+
+    await requester.save();
+    await authUser.save();
+
+    return completedMessage(
+      res,
+      200,
+      'User removed from reject list successfully',
+      messageCodes['User removed from Reject List']
+    );
+  } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    return errorMessage(res);
+  }
 };
 
 //Blokelemede, hem takip işlemleri kalkacak, yani kullanıcı takip ediyorsa, takibi son bulacak, takip ediliyorsa, takil edenler listesinden blokelediği kişi kaldırılacak.
@@ -706,6 +830,7 @@ const FollowController = Object.freeze({
   blockFollower,
   removeBlock,
   deleteUserFromRejectList,
+  getNumberOfFollowers,
 });
 
 export default FollowController;

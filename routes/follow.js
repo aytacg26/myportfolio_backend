@@ -15,6 +15,15 @@ followRouter.get('/followers', httpsMiddleware, authMiddleware, (req, res) => {
   FollowController.getAllFollowers(req, res);
 });
 
+followRouter.get(
+  '/followerssize',
+  httpsMiddleware,
+  authMiddleware,
+  (req, res) => {
+    FollowController.getNumberOfFollowers(req, res);
+  }
+);
+
 /**
  * @route           GET api/follow/followings
  * @description     Get all followings of authenticated user
@@ -110,10 +119,10 @@ followRouter.post(
 
 /**
  * @route           DELETE api/follow/removereject/:idOfRequester
- * @description     Reject follow request send by another user to the auth user
+ * @description     Delete user from reject list
  * @access          Private
  */
-followRouter.post(
+followRouter.delete(
   '/removereject/:idOfRequester',
   httpsMiddleware,
   authMiddleware,

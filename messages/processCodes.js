@@ -13,6 +13,8 @@ const messageCodes = Object.freeze({
   'User removed from follower list': 'URFFL',
   'Follow Request Accepted': 'FRA',
   'Follow Request Rejected': 'FRR',
+  'Follow Id Conflict': 'FIC',
+  'User removed from Reject List': 'URFRL',
 });
 
 export default messageCodes;

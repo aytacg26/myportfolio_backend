@@ -81,20 +81,15 @@ const UserSchema = new mongoose.Schema(
         },
       },
     },
-    followings: [
-      {
-        userId: {
-          type: String,
-        },
-      },
-    ],
-    followers: [
-      {
-        userId: {
-          type: String,
-        },
-      },
-    ],
+    numOfFollowers: {
+      type: Number,
+      default: 0,
+    },
+    numOfFollowings: {
+      type: Number,
+      default: 0,
+    },
+
     followingRequestSend: [
       {
         userId: {
@@ -145,6 +140,10 @@ const UserSchema = new mongoose.Schema(
   },
   { minimize: false }
 );
+
+function arrayLimit(val) {
+  return val.length <= 2;
+}
 
 const User = mongoose.model('users', UserSchema);
 
