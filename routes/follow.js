@@ -145,6 +145,11 @@ followRouter.post(
   }
 );
 
+/**
+ * @route           DELETE api/follow/removeblock/:idOfBlockedUser
+ * @description     Remove block on blocked user
+ * @access          Private
+ */
 followRouter.delete(
   '/removeblock/:idOfBlockedUser',
   httpsMiddleware,

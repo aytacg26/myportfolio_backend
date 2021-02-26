@@ -189,6 +189,8 @@ const getAllRejectedFollowRequests = async (req, res) => {
   }
 };
 
+const getAllBlockedUsers = async (req, res) => {};
+
 //api/follow/:idToRemove
 //DELETE
 //This will remove a follower of the user from his/her followers list
@@ -1068,7 +1070,12 @@ const blockFollower = async (req, res) => {
     await user.save();
     await blockedUser.save();
 
-    completedMessage(res, 200, 'User Blocked Successfully');
+    completedMessage(
+      res,
+      200,
+      'User Blocked Successfully',
+      messageCodes['User Added to Blocked List']
+    );
   } catch (error) {
     if (error.kind === 'ObjectId') {
       return errorMessage(
@@ -1083,13 +1090,78 @@ const blockFollower = async (req, res) => {
   }
 };
 
+/**
+ * @route           DELETE api/follow/removeblock/:idOfBlockedUser
+ * @description     Remove block on blocked user
+ * @access          Private
+ */
 //Blokenin kaldırılması durumunda, blokenin kaldırıldığı kişi kullanıcıya follow isteği gönderebilir veya accout privateAccount değil ise, direkt follow işlemine başlayabilir.
 const removeBlock = async (req, res) => {
-  //1- Check if authUser and blockedUser are exists, if yes move forward, else return error
-  //2- Check if there is any block, if not return an error
-  //3- remove block of authUser from blockedUser but if blockedUser blocked the authUser, it will remain same
-  //3- remove blockedUser from blockedUsers list of authUser
-  //4- remove authUser from blockedBy array of blockedUser
+  try {
+    //1- Check if authUser and blockedUser are exists, if yes move forward, else return error
+    const authUserId = req.user.id;
+    const blockedUserId = req.params.idOfBlockedUser;
+    const authUser = await User.findById(authUserId);
+    const blockedUser = await User.findById(blockedUserId);
+
+    if (!authUser || !blockedUser) {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    //2- Check if there is any block, if not return an error
+    const hasBlockedBy =
+      blockedUser.blockedBy.filter((bb) => bb.userId === authUserId).length > 0;
+
+    if (!hasBlockedBy) {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    //3- remove block of authUser from blockedUser but if blockedUser blocked the authUser, it will remain same
+    await BlockedUser.findOneAndDelete({
+      user: authUserId,
+      'blockedUser.userId': blockedUserId,
+    });
+
+    //3- remove blockedUser from blockedUsers list of authUser
+    authUser.blockedUsers = authUser.blockedUsers.filter(
+      (blockedUser) => blockedUser.userId !== blockedUserId
+    );
+
+    //4- remove authUser from blockedBy array of blockedUser
+    blockedUser.blockedBy = blockedUser.blockedBy.filter(
+      (blocker) => blocker.userId !== authUserId
+    );
+
+    await authUser.save();
+    await blockedUser.save();
+    completedMessage(
+      res,
+      200,
+      'Block Removed Successfully',
+      messageCodes['User removed from Blocked List']
+    );
+  } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    return errorMessage(res);
+  }
 };
 
 const FollowController = Object.freeze({
@@ -1106,6 +1178,7 @@ const FollowController = Object.freeze({
   removeBlock,
   deleteUserFromRejectList,
   getNumberOfFollowers,
+  getAllBlockedUsers,
 });
 
 export default FollowController;

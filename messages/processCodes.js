@@ -15,6 +15,8 @@ const messageCodes = Object.freeze({
   'Follow Request Rejected': 'FRR',
   'Follow Id Conflict': 'FIC',
   'User removed from Reject List': 'URFRL',
+  'User Added to Blocked List': 'UATBL',
+  'User removed from Blocked List': 'URFBL',
 });
 
 export default messageCodes;
