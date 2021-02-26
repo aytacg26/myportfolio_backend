@@ -72,6 +72,18 @@ export const FollowListViewModel = (list, type = 'follower') => {
           avatar,
         };
       });
+
+    case 'blockedUser':
+      return list.map((blockedUser) => {
+        const { name, surname, avatar } = blockedUser.blockedUser.userId;
+
+        return {
+          name,
+          surname,
+          avatar,
+          blockedDate: blockedUser.blockedDate,
+        };
+      });
     default:
       return [];
   }
