@@ -25,3 +25,19 @@ When an auth user deletes a user from his/her rejected follow requests list
 3- Remove requester from the followRequestRejected list of auth user
 
 
+When a user blocks another user/follower, the following processes will take place:
+1- Find user and blocked User, if they exists, move forward, else return error
+2- Check if blocked user is a follower of user, if s/he is a follower, remove from followers of the user and followings of the blocked user
+3- check if blocked user is a following of user (that is if blocked user is followed by user), if yes, remove from followings of the user and followers of the blocked user
+4- Add blocked user to the blockedUsers array of user
+5- Add user to the blockedBy array of blockedUser
+6- check if blocked user has any following request to user and remove user from following requests of blocked user
+7- check if blocked user has any follow request received from user and remove user from follow request received list
+8- check if user has any following request to blocked user and remove blockedUser from following requests of user
+9- check if user has any follow request received from blockUser and remove blocked user from follow request received list
+10- check if there is any ReceivedFollowRequest of blocked user from user and delete it
+11- check if there is any SentFollowRequest of blockedUser to user and delete it
+12- check if there is any SentFollowRequest of user to blocked user and delete it
+13- check if there is any ReceivedFollowRequest of user from blocked user and delete it
+14- add BlockedUser to the Blocked User collection of user.
+

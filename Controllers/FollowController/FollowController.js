@@ -825,8 +825,108 @@ const deleteUserFromRejectList = async (req, res) => {
   }
 };
 
+/**
+ * @route           POST api/follow/blockuser/:idOfBlockedUser
+ * @description     Block a follower or a user
+ * @access          Private
+ */
 //Blokelemede, hem takip işlemleri kalkacak, yani kullanıcı takip ediyorsa, takibi son bulacak, takip ediliyorsa, takil edenler listesinden blokelediği kişi kaldırılacak.
-const blockFollower = async (req, res) => {};
+const blockFollower = async (req, res) => {
+  try {
+    //1- Find user and blocked User, if they exists, move forward, else return error
+    const user = await User.findById(userId);
+    const blockedUser = await User.findById(blockedUserId);
+
+    if (!user || !blockedUser) {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    //2- Check if blocked user is a follower of user, if s/he is a follower, remove from followers of the user and followings of the blocked user
+    //3- check if blocked user is a following of user (that is if blocked user is followed by user), if yes, remove from followings of the user and followers of the blocked user
+    const followerOfUser = await Follower.findOne({
+      user: userId,
+      'follower.userId': blockedUser,
+    });
+    const followingOfUser = await Following.findOne({
+      user: userId,
+      'following.userId': blockedUser,
+    });
+
+    if (followerOfUser) {
+      await Follower.findOneAndDelete({
+        user: userId,
+        'follower.userId': blockedUser,
+      });
+
+      await Following.findOneAndDelete({
+        user: blockedUserId,
+        'following.userId': userId,
+      });
+    }
+
+    if (followingOfUser) {
+      await Following.findOneAndDelete({
+        user: userId,
+        'following.userId': blockedUser,
+      });
+
+      await Follower.findOneAndDelete({
+        user: blockedUserId,
+        'follower.userId': userId,
+      });
+    }
+
+    //4- Add blocked user to the blockedUsers array of user
+    //5- Add user to the blockedBy array of blockedUser
+    //6- check if blocked user has any following request to user and remove user from following requests of blocked user
+    //7- check if blocked user has any follow request received from user and remove user from follow request received list
+    //8- check if user has any following request to blocked user and remove blockedUser from following requests of user
+    //9- check if user has any follow request received from blockUser and remove blocked user from follow request received list
+    //10- check if there is any ReceivedFollowRequest of blocked user from user and delete it
+    //11- check if there is any SentFollowRequest of blockedUser to user and delete it
+    //12- check if there is any SentFollowRequest of user to blocked user and delete it
+    //13- check if there is any ReceivedFollowRequest of user from blocked user and delete it
+    //14- add BlockedUser to the Blocked User collection of user.
+    //MODEL :
+    /**
+   *   user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+  },
+  blockedUser: {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
+      required: true,
+    },
+  },
+
+  blockedDate: {
+    type: Date,
+    default: Date.now(),
+  },
+   */
+  } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return errorMessage(
+        res,
+        404,
+        'No user found',
+        messageCodes['No User Found']
+      );
+    }
+
+    return errorMessage(res);
+  }
+
+  const userId = req.user.id;
+  const blockedUserId = req.params.idOfBlockedUser;
+};
 
 //Blokenin kaldırılması durumunda, blokenin kaldırıldığı kişi kullanıcıya follow isteği gönderebilir veya accout privateAccount değil ise, direkt follow işlemine başlayabilir.
 const removeBlock = async (req, res) => {};
