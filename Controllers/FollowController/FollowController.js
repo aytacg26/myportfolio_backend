@@ -4,6 +4,7 @@ import Follower from '../../Models/Follower.js';
 import ReceivedFollowRequest from '../../Models/ReceivedFollowRequest.js';
 import SentFollowRequest from '../../Models/SentFollowRequest.js';
 import RejectedFollower from '../../Models/RejectedFollower.js';
+import BlockedUser from '../../Models/BlockedUser.js';
 import messageCodes from '../../messages/processCodes.js';
 import { completedMessage, errorMessage } from '../../messages/messages.js';
 import { FollowListViewModel } from '../../ViewModels/FollowListViewModel.js';
@@ -892,7 +893,7 @@ const blockFollower = async (req, res) => {
     ];
 
     user.blockedUsers = newBlockedUserArray;
-    await user.save();
+
     //5- Add user to the blockedBy array of blockedUser
     const newBlockedByArray = [
       ...blockedUser.blockedBy,
@@ -902,16 +903,15 @@ const blockFollower = async (req, res) => {
     ];
 
     blockedUser.blockedBy = newBlockedByArray;
-    await blockedUser.save();
 
-    //6- check if blocked user has any following request to user and remove user from following requests of blocked user
+    //6- check if blocked user has any following request to user and remove user from following requests of blocked user (clear array)
     //7- check if blocked user has any follow request received from user and remove user from follow request received list
-    //8- check if user has any following request to blocked user and remove blockedUser from following requests of user
+    //8- check if user has any following request to blocked user and remove blockedUser from following requests of user (clear array)
     //9- check if user has any follow request received from blockUser and remove blocked user from follow request received list
-    //10- check if there is any ReceivedFollowRequest of blocked user from user and delete it
-    //10- check if there is any ReceivedFollowRequest of blocked user from user and delete it
-    //11- check if there is any SentFollowRequest of blockedUser to user and delete it
-    //12- check if there is any SentFollowRequest of user to blocked user and delete it
+    //11- check if there is any ReceivedFollowRequest of  user from  blocked user and delete it
+    //12- check if there is any ReceivedFollowRequest of blocked user from user and delete it
+    //13- check if there is any SentFollowRequest of blockedUser to user and delete it
+    //14- check if there is any SentFollowRequest of user to blocked user and delete it
     const receivedFollowRequestFromUser = await ReceivedFollowRequest.findOne({
       user: blockedUserId,
       'fromUser.userId': userId,
@@ -933,6 +933,16 @@ const blockFollower = async (req, res) => {
         user: userId,
         'toUser.userId': blockedUserId,
       });
+
+      const newFollowingRequestSentListOfUser = user.followingRequestSend.filter(
+        (frs) => frs.userId !== blockedUserId
+      );
+      const newFollowRequestReceivedListofBlockedUser = blockedUser.followRequestReceived.filter(
+        (frr) => frr.userId !== userId
+      );
+
+      user.followingRequestSend = newFollowingRequestSentListOfUser;
+      blockedUser.followRequestReceived = newFollowRequestReceivedListofBlockedUser;
     }
 
     if (receivedFollowRequestFromBlockedUser) {
@@ -944,29 +954,78 @@ const blockFollower = async (req, res) => {
         user: blockedUserId,
         'toUser.userId': userId,
       });
+
+      const newFollowingRequestSentListOfBlockedUser = blockedUser.followingRequestSend.filter(
+        (frs) => frs.userId !== userId
+      );
+      const newFollowRequestReceivedListofUser = user.followRequestReceived.filter(
+        (frr) => frr.userId !== blockedUserId
+      );
+
+      blockedUser.followingRequestSend = newFollowingRequestSentListOfBlockedUser;
+      user.followRequestReceived = newFollowRequestReceivedListofUser;
     }
 
-    //13- check if there is any ReceivedFollowRequest of user from blocked user and delete it
-    //14- add BlockedUser to the Blocked User collection of user.
-    //MODEL :
-    /**
-   *   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
-  },
-  blockedUser: {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'users',
-      required: true,
-    },
-  },
+    //Check if user rejected follow request of blocked user and also if blocked user rejected follow request of user if any exist, remove those data too
+    //15- if user rejected follow request of blocked user remove blocked user from rejectedFollowrequests collection of user
+    //16- if blocked user rejected follow request of user remove user from rejectedFollowrequests collection of blocked user
+    //17- Remove user from followRequestRejected List of blocked user
+    //18- Remove blocked user from followRequestRejected List of user
+    // Note : If a user blocked another, there is no meaning to keep blocked user in rejected list and rejectedfollowrequest collection
+    const rejectedBlockedUserFollowRequest = await RejectedFollower.findOne({
+      user: userId,
+      'rejectedUser.userId': blockedUserId,
+    });
+    const rejectedUserFollowRequest = await RejectedFollower.findOne({
+      user: blockedUserId,
+      'rejectedUser.userId': userId,
+    });
 
-  blockedDate: {
-    type: Date,
-    default: Date.now(),
-  },
-   */
+    if (rejectedBlockedUserFollowRequest) {
+      await RejectedFollower.findOneAndDelete({
+        user: userId,
+        'rejectedUser.userId': blockedUserId,
+      });
+
+      const newFollowingRequestRejectedListofBlockedUser = blockedUser.followingRequestRejected.filter(
+        (frr) => frr.userId !== userId
+      );
+      const newFollowRequestRejectedListofUser = user.followRequestRejected.filter(
+        (frr) => frr.userId !== blockedUserId
+      );
+
+      blockedUser.followingRequestRejected = newFollowingRequestRejectedListofBlockedUser;
+      user.followRequestRejected = newFollowRequestRejectedListofUser;
+    }
+
+    if (rejectedUserFollowRequest) {
+      await RejectedFollower.findOneAndDelete({
+        user: blockedUserId,
+        'rejectedUser.userId': userId,
+      });
+
+      const newFollowingRequestRejectedListofUser = user.followingRequestRejected.filter(
+        (frr) => frr.userId !== blockedUserId
+      );
+      const newFollowRequestRejectedListofBlockedUser = blockedUser.followRequestRejected.filter(
+        (frr) => frr.userId !== userId
+      );
+
+      user.followingRequestRejected = newFollowingRequestRejectedListofUser;
+      blockedUser.followRequestRejected = newFollowRequestRejectedListofBlockedUser;
+    }
+
+    //15- add BlockedUser to the Blocked User collection of user.
+    const userBlocked = new BlockedUser({
+      user: userId,
+      blockedUser: {
+        userId: blockedUserId,
+      },
+    });
+
+    await userBlocked.save();
+    await user.save();
+    await blockedUser.save();
   } catch (error) {
     if (error.kind === 'ObjectId') {
       return errorMessage(

@@ -136,9 +136,14 @@ followRouter.delete(
  * @description     Block a follower or a user
  * @access          Private
  */
-followRouter.post('/blockuser', httpsMiddleware, authMiddleware, (req, res) => {
-  FollowController.blockFollower(req, res);
-});
+followRouter.post(
+  '/blockuser/:idOfBlockedUser',
+  httpsMiddleware,
+  authMiddleware,
+  (req, res) => {
+    FollowController.blockFollower(req, res);
+  }
+);
 
 /**
  * @route           POST api/follow
