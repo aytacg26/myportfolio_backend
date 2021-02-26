@@ -7,15 +7,8 @@ const SendFollowRequestSchema = new mongoose.Schema({
   },
   toUser: {
     userId: {
-      type: String,
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    surname: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
       required: true,
     },
   },

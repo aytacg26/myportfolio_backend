@@ -6,28 +6,35 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLenght: 2,
+      maxLenght: 35,
     },
     surname: {
       type: String,
       requried: true,
       minLength: 2,
+      maxLenght: 35,
     },
     email: {
       type: String,
       required: true,
       unique: true,
       index: true,
+      maxLength: 100,
     },
     password: {
       type: String,
       required: true,
+      minLength: 6,
+      maxLength: 100,
     },
     gender: {
       type: String,
       required: true,
+      maxLength: 25,
     },
     profession: {
       type: String,
+      maxLength: 60,
     },
     isActive: {
       //when user confirms his/her email this will be true, if user deactives his/her accout, this will be false

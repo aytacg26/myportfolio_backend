@@ -45,16 +45,19 @@ usersRouter.post(
       check('name', 'Name is required')
         .not()
         .isEmpty()
-        .isLength({ min: 2, max: 30 })
+        .isLength({ min: 2, max: 35 })
         .trim()
         .escape(),
       check('surname', 'Surname is required')
         .not()
         .isEmpty()
-        .isLength({ min: 2, max: 30 })
+        .isLength({ min: 2, max: 35 })
         .trim()
         .escape(),
-      check('email', 'Email is required').not().isEmpty().isLength({ max: 80 }),
+      check('email', 'Email is required')
+        .not()
+        .isEmpty()
+        .isLength({ max: 100 }),
       check('email', 'Valid email is required').isEmail().normalizeEmail(),
       check('password', 'Password is required').not().isEmpty(),
       check('password', 'Minimum length for password must be 6').isLength({
@@ -70,6 +73,9 @@ usersRouter.post(
         .exists()
         .custom((value, { req }) => value === req.body.password),
       check('gender', 'Gender is required').not().isEmpty(),
+      check('gender', 'Max length for gender is 25 characters').isLength({
+        max: 25,
+      }),
     ],
   ],
 

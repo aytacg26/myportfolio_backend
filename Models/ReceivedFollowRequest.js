@@ -7,23 +7,9 @@ const ReceivedFollowRequestSchema = new mongoose.Schema({
   },
   fromUser: {
     userId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
       required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    surname: {
-      type: String,
-      required: true,
-    },
-    avatar: {
-      type: String,
-      required: true,
-    },
-    profession: {
-      type: String,
     },
   },
   isAccepted: {

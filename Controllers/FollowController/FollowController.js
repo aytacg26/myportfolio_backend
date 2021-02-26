@@ -99,6 +99,11 @@ const getAllReceivedFollowRequests = async (req, res) => {
   try {
     const userFollowRequests = await ReceivedFollowRequest.find({
       user: req.user.id,
+    }).populate('fromUser.userId', {
+      name: 1,
+      surname: 1,
+      avatar: 1,
+      profession: 1,
     });
 
     const followReqestsList = FollowListViewModel(
@@ -107,6 +112,7 @@ const getAllReceivedFollowRequests = async (req, res) => {
     );
 
     res.json(followReqestsList);
+    // res.json(userFollowRequests);
   } catch (error) {
     if (error.kind === 'ObjectId') {
       return completedMessage(
@@ -128,6 +134,11 @@ const getAllSentFollowRequests = async (req, res) => {
   try {
     const sentFollowRequests = await SentFollowRequest.find({
       user: req.user.id,
+    }).populate('toUser.userId', {
+      name: 1,
+      surname: 1,
+      avatar: 1,
+      profession: 1,
     });
 
     const sentFollowRequestList = FollowListViewModel(
@@ -156,7 +167,14 @@ const getAllSentFollowRequests = async (req, res) => {
 const getAllRejectedFollowRequests = async (req, res) => {
   try {
     const authUserId = req.user.id;
-    const listOfRejected = await RejectedFollower.find({ user: authUserId });
+    const listOfRejected = await RejectedFollower.find({
+      user: authUserId,
+    }).populate('rejectedUser.userId', {
+      name: 1,
+      surname: 1,
+      avatar: 1,
+      profession: 1,
+    });
 
     const rejectedUsersList = FollowListViewModel(
       listOfRejected,
