@@ -833,6 +833,8 @@ const deleteUserFromRejectList = async (req, res) => {
 //Blokelemede, hem takip işlemleri kalkacak, yani kullanıcı takip ediyorsa, takibi son bulacak, takip ediliyorsa, takil edenler listesinden blokelediği kişi kaldırılacak.
 const blockFollower = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const blockedUserId = req.params.idOfBlockedUser;
     //1- Find user and blocked User, if they exists, move forward, else return error
     const user = await User.findById(userId);
     const blockedUser = await User.findById(blockedUserId);
@@ -850,17 +852,17 @@ const blockFollower = async (req, res) => {
     //3- check if blocked user is a following of user (that is if blocked user is followed by user), if yes, remove from followings of the user and followers of the blocked user
     const followerOfUser = await Follower.findOne({
       user: userId,
-      'follower.userId': blockedUser,
+      'follower.userId': blockedUserId,
     });
     const followingOfUser = await Following.findOne({
       user: userId,
-      'following.userId': blockedUser,
+      'following.userId': blockedUserId,
     });
 
     if (followerOfUser) {
       await Follower.findOneAndDelete({
         user: userId,
-        'follower.userId': blockedUser,
+        'follower.userId': blockedUserId,
       });
 
       await Following.findOneAndDelete({
@@ -872,7 +874,7 @@ const blockFollower = async (req, res) => {
     if (followingOfUser) {
       await Following.findOneAndDelete({
         user: userId,
-        'following.userId': blockedUser,
+        'following.userId': blockedUserId,
       });
 
       await Follower.findOneAndDelete({
@@ -903,6 +905,10 @@ const blockFollower = async (req, res) => {
     await blockedUser.save();
 
     //6- check if blocked user has any following request to user and remove user from following requests of blocked user
+    const followingRequestFromBlockedUser = await Following.findOne({
+      user: blockedUserId,
+      'following.userId': userId,
+    });
     //7- check if blocked user has any follow request received from user and remove user from follow request received list
     //8- check if user has any following request to blocked user and remove blockedUser from following requests of user
     //9- check if user has any follow request received from blockUser and remove blocked user from follow request received list
@@ -942,9 +948,6 @@ const blockFollower = async (req, res) => {
 
     return errorMessage(res);
   }
-
-  const userId = req.user.id;
-  const blockedUserId = req.params.idOfBlockedUser;
 };
 
 //Blokenin kaldırılması durumunda, blokenin kaldırıldığı kişi kullanıcıya follow isteği gönderebilir veya accout privateAccount değil ise, direkt follow işlemine başlayabilir.
