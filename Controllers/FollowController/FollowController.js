@@ -905,16 +905,47 @@ const blockFollower = async (req, res) => {
     await blockedUser.save();
 
     //6- check if blocked user has any following request to user and remove user from following requests of blocked user
-    const followingRequestFromBlockedUser = await Following.findOne({
-      user: blockedUserId,
-      'following.userId': userId,
-    });
     //7- check if blocked user has any follow request received from user and remove user from follow request received list
     //8- check if user has any following request to blocked user and remove blockedUser from following requests of user
     //9- check if user has any follow request received from blockUser and remove blocked user from follow request received list
     //10- check if there is any ReceivedFollowRequest of blocked user from user and delete it
+    //10- check if there is any ReceivedFollowRequest of blocked user from user and delete it
     //11- check if there is any SentFollowRequest of blockedUser to user and delete it
     //12- check if there is any SentFollowRequest of user to blocked user and delete it
+    const receivedFollowRequestFromUser = await ReceivedFollowRequest.findOne({
+      user: blockedUserId,
+      'fromUser.userId': userId,
+    });
+    const receivedFollowRequestFromBlockedUser = await ReceivedFollowRequest.findOne(
+      {
+        user: userId,
+        'fromUser.userId': blockedUserId,
+      }
+    );
+
+    if (receivedFollowRequestFromUser) {
+      await ReceivedFollowRequest.findOneAndDelete({
+        user: blockedUserId,
+        'fromUser.userId': userId,
+      });
+
+      await SentFollowRequest.findOneAndDelete({
+        user: userId,
+        'toUser.userId': blockedUserId,
+      });
+    }
+
+    if (receivedFollowRequestFromBlockedUser) {
+      await ReceivedFollowRequest.findOneAndDelete({
+        user: userId,
+        'fromUser.userId': blockedUserId,
+      });
+      await SentFollowRequest.findOneAndDelete({
+        user: blockedUserId,
+        'toUser.userId': userId,
+      });
+    }
+
     //13- check if there is any ReceivedFollowRequest of user from blocked user and delete it
     //14- add BlockedUser to the Blocked User collection of user.
     //MODEL :
