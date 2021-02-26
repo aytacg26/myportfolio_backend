@@ -285,9 +285,30 @@ const followUnfollow = async (req, res) => {
       );
     }
 
-    // const isFollowing =
-    //   user.followings.filter((following) => following.id === toFollow).length >
-    //   0;
+    //A Blocked User won't be able to see the user who blocked him/her but in any case, it will be better to check if s/he is blocked or not by the user which s/he tries to follow
+    //And also if the user who will receive the follow request is blocked by authUser, the process should be stopped
+    const hasUserBlocked =
+      toUser.blockedUsers.filter(
+        (blockedUser) => blockedUser.userId === authUserId
+      ).length > 0;
+
+    const hasToUserBlocked =
+      toUser.blockedBy.filter(
+        (blockedUser) => blockedUser.userId === authUserId
+      ).length > 0;
+
+    console.log(hasUserBlocked);
+    console.log(hasToUserBlocked);
+
+    if (hasUserBlocked || hasToUserBlocked) {
+      return errorMessage(
+        res,
+        400,
+        "Couldn't find the user",
+        messageCodes['No User Found']
+      );
+    }
+
     //Follow tuşuna tıkladığımız kişiyi takip ediyor muyuz? Evet ise, takibi kaldıracağımız anlamına gelir.
     const isFollowing = await Following.findOne({
       user: authUserId,
@@ -849,6 +870,26 @@ const blockFollower = async (req, res) => {
       );
     }
 
+    //A Usar cannot be blocked two times and a blocked user will not be able to find the user but shouldn't be able to block...
+    const hasUserBlocked =
+      user.blockedUsers.filter(
+        (blockedUser) => blockedUser.userId === blockedUserId
+      ).length > 0;
+
+    const hasToUserBlocked =
+      user.blockedBy.filter(
+        (blockedUser) => blockedUser.userId === blockedUserId
+      ).length > 0;
+
+    if (hasUserBlocked || hasToUserBlocked) {
+      return errorMessage(
+        res,
+        400,
+        "Couldn't find the user",
+        messageCodes['No User Found']
+      );
+    }
+
     //2- Check if blocked user is a follower of user, if s/he is a follower, remove from followers of the user and followings of the blocked user
     //3- check if blocked user is a following of user (that is if blocked user is followed by user), if yes, remove from followings of the user and followers of the blocked user
     const followerOfUser = await Follower.findOne({
@@ -898,7 +939,7 @@ const blockFollower = async (req, res) => {
     const newBlockedByArray = [
       ...blockedUser.blockedBy,
       {
-        userId: blockedUserId,
+        userId: userId,
       },
     ];
 
@@ -1026,6 +1067,8 @@ const blockFollower = async (req, res) => {
     await userBlocked.save();
     await user.save();
     await blockedUser.save();
+
+    completedMessage(res, 200, 'User Blocked Successfully');
   } catch (error) {
     if (error.kind === 'ObjectId') {
       return errorMessage(
@@ -1041,7 +1084,13 @@ const blockFollower = async (req, res) => {
 };
 
 //Blokenin kaldırılması durumunda, blokenin kaldırıldığı kişi kullanıcıya follow isteği gönderebilir veya accout privateAccount değil ise, direkt follow işlemine başlayabilir.
-const removeBlock = async (req, res) => {};
+const removeBlock = async (req, res) => {
+  //1- Check if authUser and blockedUser are exists, if yes move forward, else return error
+  //2- Check if there is any block, if not return an error
+  //3- remove block of authUser from blockedUser but if blockedUser blocked the authUser, it will remain same
+  //3- remove blockedUser from blockedUsers list of authUser
+  //4- remove authUser from blockedBy array of blockedUser
+};
 
 const FollowController = Object.freeze({
   getAllFollowings,
