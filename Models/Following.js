@@ -11,20 +11,7 @@ const FollowingSchema = new mongoose.Schema({
       ref: 'users',
       required: true,
     },
-    name: {
-      type: String,
-      required: true,
-    },
-    surname: {
-      type: String,
-      required: true,
-    },
-    avatar: {
-      type: String,
-    },
-    profession: {
-      type: String,
-    },
+
     followingStartDate: {
       type: Date,
       default: Date.now(),

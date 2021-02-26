@@ -13,20 +13,6 @@ const FollowerSchema = new mongoose.Schema({
       required: true,
     },
 
-    name: {
-      type: String,
-      required: true,
-    },
-    surname: {
-      type: String,
-      required: true,
-    },
-    avatar: {
-      type: String,
-    },
-    profession: {
-      type: String,
-    },
     amIFollowing: {
       type: Boolean,
       default: false,

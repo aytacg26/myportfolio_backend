@@ -18,11 +18,16 @@ const getAllFollowers = async (req, res) => {
     const userFollowers = await Follower.find(
       { user: req.user.id },
       { follower: 1, _id: 0 }
-    );
+    ).populate('follower.userId', {
+      name: 1,
+      surname: 1,
+      avatar: 1,
+      profession: 1,
+    });
 
-    const followers = FollowListViewModel(userFollowers, 'follower');
+    const followersView = FollowListViewModel(userFollowers, 'follower');
 
-    res.json(followers);
+    res.json(followersView);
   } catch (error) {
     console.error(error.message);
     if (error.kind === 'ObjectId') {
@@ -60,11 +65,16 @@ const getAllFollowings = async (req, res) => {
     const userFollowings = await Following.find(
       { user: req.user.id },
       { following: 1, _id: 0 }
-    );
+    ).populate('following.userId', {
+      name: 1,
+      surname: 1,
+      avatar: 1,
+      profession: 1,
+    });
 
-    const followings = FollowListViewModel(userFollowings, 'following');
+    const followingsView = FollowListViewModel(userFollowings, 'following');
 
-    res.json(followings);
+    res.json(followingsView);
   } catch (error) {
     if (error.kind === 'ObjectId') {
       return completedMessage(
@@ -313,11 +323,11 @@ const followUnfollow = async (req, res) => {
 
     //Eğer follow request gönderdiği bir kişi ise, follow request iptal edilir. Tabi böyle bir şeyin söz konusu olması için follow request gönderilen kişinin accountu private olmalıdır
     //ancak burada şöle bir durum söz konusu olabilir, kullanıcı account'unu daha sonradan private yapmış olabilir. zaten böyle bir durumda isFollowing true olacaktır ve aynı zamanda hasFollowingRequestSend'de false olacaktır
-    const hasFolowingRequestSend =
+    const hasFollowingRequestSend =
       user.followingRequestSend.filter((frs) => frs.userId === toFollow)
         .length > 0;
 
-    if (hasFolowingRequestSend) {
+    if (hasFollowingRequestSend) {
       //Eğer following request göndermiş olduğu biri ise, kullanıcının followingRequestSend listesi revize edilir, request gönderilen kişinin followRequestListesi revize edilir.
       const newFollowingRequestSendList = user.followingRequestSend.filter(
         (frs) => frs.userId !== toFollow
@@ -360,7 +370,7 @@ const followUnfollow = async (req, res) => {
         (followingReqRejected) => followingReqRejected.userId === toFollow
       ).length > 0;
 
-    if (isInRejectedList && !hasFolowingRequestSend) {
+    if (isInRejectedList && !hasFollowingRequestSend) {
       const newFollowingReqList = [
         ...user.followingRequestSend,
         {
@@ -483,10 +493,6 @@ const followUnfollow = async (req, res) => {
       user: authUserId,
       following: {
         userId: toFollow,
-        name: toUser.name,
-        surname: toUser.surname,
-        avatar: toUser.avatar,
-        profession: toUser.profession,
       },
     });
 
@@ -497,10 +503,7 @@ const followUnfollow = async (req, res) => {
       user: toFollow,
       follower: {
         userId: authUserId,
-        name: user.name,
-        surname: user.surname,
-        avatar: user.avatar,
-        profession: user.profession,
+
         amIFollowing: toUserFollowsAuthUser,
       },
     });
@@ -601,10 +604,7 @@ const acceptFollowRequest = async (req, res) => {
       user: authUserId,
       follower: {
         userId: requesterId,
-        name: requester.name,
-        surname: requester.surname,
-        avatar: requester.avatar,
-        profession: requester.profession,
+
         amIFollowing: follows,
       },
     });
@@ -616,10 +616,6 @@ const acceptFollowRequest = async (req, res) => {
       user: requesterId,
       following: {
         userId: authUserId,
-        name: user.name,
-        surname: user.surname,
-        avatar: user.avatar,
-        profession: user.profession,
       },
     });
 
