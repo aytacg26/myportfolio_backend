@@ -76,6 +76,20 @@ followRouter.get(
 );
 
 /**
+ * @route           GET api/follow/listOfBlocked
+ * @description     Get all blocked users of auth user (This will give the list of blocked users who blocked by auth user)
+ * @access          Private
+ */
+followRouter.get(
+  '/listofblocked',
+  httpsMiddleware,
+  authMiddleware,
+  (req, res) => {
+    FollowController.getAllBlockedUsers(req, res);
+  }
+);
+
+/**
  * @route           DELETE api/follow/:idToRemove
  * @description     Delete a follower from followers list of auth user
  * @access          Private
