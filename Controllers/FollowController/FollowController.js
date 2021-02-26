@@ -1194,15 +1194,15 @@ const FollowController = Object.freeze({
   getAllReceivedFollowRequests,
   getAllSentFollowRequests,
   getAllRejectedFollowRequests,
+  getAllBlockedUsers,
   removeFollower,
+  removeBlock,
+  deleteUserFromRejectList,
   followUnfollow,
   acceptFollowRequest,
   rejectFollowRequest,
   blockFollower,
-  removeBlock,
-  deleteUserFromRejectList,
   getNumberOfFollowers,
-  getAllBlockedUsers,
 });
 
 export default FollowController;
