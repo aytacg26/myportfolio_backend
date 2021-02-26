@@ -882,7 +882,26 @@ const blockFollower = async (req, res) => {
     }
 
     //4- Add blocked user to the blockedUsers array of user
+    const newBlockedUserArray = [
+      ...user.blockedUsers,
+      {
+        userId: blockedUserId,
+      },
+    ];
+
+    user.blockedUsers = newBlockedUserArray;
+    await user.save();
     //5- Add user to the blockedBy array of blockedUser
+    const newBlockedByArray = [
+      ...blockedUser.blockedBy,
+      {
+        userId: blockedUserId,
+      },
+    ];
+
+    blockedUser.blockedBy = newBlockedByArray;
+    await blockedUser.save();
+
     //6- check if blocked user has any following request to user and remove user from following requests of blocked user
     //7- check if blocked user has any follow request received from user and remove user from follow request received list
     //8- check if user has any following request to blocked user and remove blockedUser from following requests of user
