@@ -189,7 +189,31 @@ const getAllRejectedFollowRequests = async (req, res) => {
   }
 };
 
-const getAllBlockedUsers = async (req, res) => {};
+/**
+ * @route           GET api/follow/listOfBlocked
+ * @description     Get all blocked users of auth user (This will give the list of blocked users who blocked by auth user)
+ * @access          Private
+ */
+const getAllBlockedUsers = async (req, res) => {
+  try {
+    const authUserId = req.user.id;
+    const blockedUsers = BlockedUser.find({
+      user: authUserId,
+    }).populate('blockedUser.userId', {
+      name: 1,
+      surname: 1,
+      avatar: 1,
+      profession: 1,
+    });
+
+    const blockedUsersList = FollowListViewModel(blockedUsers, 'blockedUser');
+
+    res.json(blockedUsersList);
+  } catch (error) {
+    console.error(error.message);
+    errorMessage(res);
+  }
+};
 
 //api/follow/:idToRemove
 //DELETE
