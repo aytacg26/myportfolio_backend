@@ -197,7 +197,7 @@ const getAllRejectedFollowRequests = async (req, res) => {
 const getAllBlockedUsers = async (req, res) => {
   try {
     const authUserId = req.user.id;
-    const blockedUsers = BlockedUser.find({
+    const blockedUsers = await BlockedUser.find({
       user: authUserId,
     }).populate('blockedUser.userId', {
       name: 1,
@@ -210,7 +210,7 @@ const getAllBlockedUsers = async (req, res) => {
 
     res.json(blockedUsersList);
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     errorMessage(res);
   }
 };
