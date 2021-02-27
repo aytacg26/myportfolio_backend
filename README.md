@@ -13,7 +13,7 @@
 This is just the backend part of the project, a good part of the FrontEnd completed in React and for Global State, Redux has been used
 
 
-#### For run the program, add default.json file to config folder and add the following :
+#### To run the program, add default.json file to config folder and add the following :
 
 ``` 
 {
