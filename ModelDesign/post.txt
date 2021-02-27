@@ -1,0 +1,121 @@
+Post Data : (Max Size for a Document in MongoDB : 16Mb)
+A post must contain following data; for some of the data, we may seperate the collections
+1- Post Id  (unique Id) (0.03Kb)
+2- Post Title (A title for the post will be optional but max length will be 50 Characters (0.05Kb))
+3- Post Text  (A post may or may not have a text, this is also optional, max length will be 9500 Characters (9.28Kb))
+4- Author Data (For author data, we will reference userId, because in case of any changes on any data of user (Name, Profession, Avatar), data must be updated on each post too) (0.03Kb)
+    1.1. User Id
+    1.2. User fullname (name + surname)
+    1.3. User profession
+    1.4. User avatar
+
+5- Date of Post (0.03Kb)
+6- Post Type (Drop Down => Article, Conference, Portfolio, Tutorial, Promotion) One of them will be selected by user (max size : 0.01Kb)
+6- Image Links Array (Max Number of allowed Images : 20) (Max expected link size : 0.132Kb/Image, total : 2.64Kb)
+6- Number of Likes (Counter) (This increase by 1 in each like and will decrease in each dislike)
+7- Likes Object Array (I have to think about on this, because for each like we will need some data and if a post liked by thousands of people, the size of post may increase unexpectedly)
+9- Number of Shares (Counter)
+10- Shares Object Array 
+11- Number of Comments (Counter)
+12- Comments Object Array
+
+Total Expected Size (except Likes Object Array, Shares Object Array, Comments Object Array ) : 12.10Kb * 15% unexpected size => 13.92Kb
+(For each counter we assume the counter number is 999Million and hence 3 x 0.00878Kb = 0.026Kb)
+
+Remaining Size : 16370 Kb
+
+A - LIKES OBJECT ARRAY : 
+    >> LIKE OBJECT :
+        {
+            likedBy > userId (0.03Kb)
+            likeDate > Date (0.03Kb)
+        }
+        Each like object will have a minimum size of 0.06Kb * 15% unexpected size => 0.069 Kb (With remaining size, we will be able to store only 237247 likes and no share, no comment)
+        In most of the cases, or let's say in most of the posts, there won't be that much likes but in extreme cases, this will hit above limits
+
+B - SHARES OBJECT ARRAY : For the shares, calculations and structure will be same with likes
+
+C - COMMENTS OBJECT ARRAY :
+        {
+            commentText, > string (max 1000 Characters will be allowed) (0.98Kb)
+            commentDate, > Date (0.03Kb)
+            commentedBy > userId (0.03Kb)
+            comment likes object array [{},{}] (same as likes of post)
+            subcomments object array > {
+                subcommentText > string (max 1000 characters will be allowed) (0.98Kb)
+                subcommentDate > Date (0.03Kb)
+                subcommentBy > userId (0.03Kb)
+                subcomment likes object array [{},{}] (same as likes of post)
+            }
+        }
+
+    > For a comment and a subcomment, size of likes won't be as much as post like size but in any case, total size may hit up to 5000 (from limited statistical analysis on Instagram and Facebook).
+    In this case, if we assume that each comment will have 5000 likes and 1000 subcomments. Max size of an Comment object will hit to 1281 Kb size. For this reason, it will be better to create
+    document for every comment of a post under the postId.
+
+    > For Likes, we may have two options :
+        
+        Option 1- we will store up to 160000 likes and will continue to count, after 160000 likes, we will remove oldest like an replace it with the new one,
+        in such case, total size of like may reach 999Million in counter but in database, we will have latest 180000 Likes. But in such case, a person who liked
+        the post, will be able to like it again after 160000 like, as we will not be able to check him/her like to see if s/he liked or not. This will be valid
+        for extreme cases and if project reaches to exteme cases structure, we may update the structure of the project. In this case, for every like after 150000,
+        we will need to find the oldest one, remove it and then we will be able to add the new one, this may cause problems and performance issues 
+        (for arrays, removing last one and adding new one won't create too much problem), 
+        but in most of the ordinary posts, let's say posts from users who does not have thousands of followers, we will not have any problem. 
+
+        Option 2 - we will create a new collection for likes, in this case, we will be able to store every single like of a post, but if project does not reach
+        extreme cases structure, this will create an unnecessary performance issue, as we will need to query likes of a post from different collection.
+
+        Some Extreme Statistics from Instagram :
+        User                # of Followers              average like of last 50 posts:          average comments last 50 posts:                 Like/Follower Ratio
+        Angelina Jolie      1.4 Million                         49,724  (below the limits)              609                                         3.55%
+        Will Smith          51.4 Million                     3,990,000  (above the limits)           11,096                                         7.76%
+        Vin Diesel          68.7 Million                     1,830,320  (above)                       8,984                                         2.66%
+        Henry Cavill        15.2 Million                     2,138,580                                18718.58                                      14.06%
+        Johnny Depp         9.8 Million                      3,437,500  (above)                       60,631 (He has only 16 Posts)                 35.07%
+        Alicia Vikander     35,644                           3171.82    (below)                       52.78                                         8.89%
+        Apple               25.2 Million                     250,090    (above)                       760                                           0.99%
+        Samsung             398,304                          22,372.94  (below)                       161.82                                        5.61%
+        Microsoft           3 Million                        37,128.94  (below)                       701.10                                        1.23%
+        Nvidia GEForce      2.3 Million                      66,858 (below)                           1774.08                                       2.90%
+        FacebookApp         3.9 Million                      19,058.06  (below)                       204.56                                        0.49%
+        Adobe               1.1 Million
+        
+
+
+
+
+
+
+        Some Statistics for project's possible groups:
+        MongoDB             42,600                           1,404      (below)                       11
+        Node Community      14,200                           393        (below)                       3.7
+        ReactJS Official    19,500                           681.62                                   27.44
+        Udemy               1.6 Million                      8100.24                                  32.02
+        Blender             85,575
+
+        When we look at the statistics, with a limited amount of data, it is possible to say, limiting to 160000 likes and removing oldest data when it reaches to 160000 will be an
+        optimal choice, as this project will not expect users like politicians, actors and celebrities, most of the time, total amount of likes will not even reach 100000 when we consider
+        the expected user profile or when we consider the tech companies
+
+
+
+    > For Shares, we may also have two options :
+            For shares, we know that a user can share one post more than one but we need to keep track of shares of users only once, that is if one user shares a post 10 times, counter
+            will increase only 1 unit but on the other hand, we cannot store all users who share the post. In general, most liked posts are also have high volume of shares. For shares,
+            we will also apply the same logic with likes but this time we cannot record 160000 shares, instead we will record 25000 shares and after that again we will delete oldest record
+            to add new one. Most probably, we will never reach this share amount, in case of number of extremes starts to increase, we will need to change the Model structure for
+            the posts
+
+
+
+With this amounts, maximum size of a post will be : (Note, shares and likes will be fetched whenever a user clicks on the number of likes or number of shares, for this reason, when we fetch a post
+which reached to the maximum amount, we will only fetch base size that is around 13.92 kb per post but on DB, the max size of a post document cannot be above 16Mb)
+
+Base Size : 13.92 Kb
+Like Objects Array : 160000 x 0.069 Kb = 10.78Mb
+Share Objects Array : 25000 x 0.069 Kb = 1.68Mb
+Total : 12.48Mb
+unexpected size : 15%
+Overall Total : 14.35Mb (Almost reached to the max limit)
+
