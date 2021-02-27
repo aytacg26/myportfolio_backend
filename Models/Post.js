@@ -93,6 +93,38 @@ const PostSchema = new mongoose.Schema({
     type: String,
     maxLength: 120,
   },
+
+  postPrivacyOptions: {
+    onlyFollowers: {
+      type: Boolean,
+      default: true,
+    },
+    onlyMe: {
+      type: Boolean,
+      default: false,
+    },
+    public: {
+      type: Boolean,
+      default: false,
+    },
+    specificFollowers: [
+      {
+        follower: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'users',
+        },
+      },
+    ],
+    allFollowersExcept: [
+      {
+        follower: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'users',
+        },
+      },
+    ],
+  },
+
   postedAt: {
     type: Date,
     default: Date.now(),
