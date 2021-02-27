@@ -11,13 +11,13 @@ A post must contain following data; for some of the data, we may seperate the co
 
 5- Date of Post (0.03Kb)
 6- Post Type (Drop Down => Article, Conference, Portfolio, Tutorial, Promotion) One of them will be selected by user (max size : 0.01Kb)
-6- Image Links Array (Max Number of allowed Images : 20) (Max expected link size : 0.132Kb/Image, total : 2.64Kb)
-6- Number of Likes (Counter) (This increase by 1 in each like and will decrease in each dislike)
-7- Likes Object Array (I have to think about on this, because for each like we will need some data and if a post liked by thousands of people, the size of post may increase unexpectedly)
-9- Number of Shares (Counter)
-10- Shares Object Array 
-11- Number of Comments (Counter)
-12- Comments Object Array
+7- Image Links Array (Max Number of allowed Images : 20) (Max expected link size : 0.132Kb/Image, total : 2.64Kb)
+8- Number of Likes (Counter) (This increase by 1 in each like and will decrease in each dislike)
+9- Likes Object Array (I have to think about on this, because for each like we will need some data and if a post liked by thousands of people, the size of post may increase unexpectedly)
+10- Number of Shares (Counter)
+11- Shares Object Array 
+12- Number of Comments (Counter)
+13- Comments Object Array
 
 Total Expected Size (except Likes Object Array, Shares Object Array, Comments Object Array ) : 12.10Kb * 15% unexpected size => 13.92Kb
 (For each counter we assume the counter number is 999Million and hence 3 x 0.00878Kb = 0.026Kb)

@@ -42,3 +42,23 @@ authRouter.post(
     AuthController.loginUser(req, res);
   }
 );
+
+/**
+ * @route          PUT api/auth/forgot
+ * @description    If user forgot his/her password, she/he will be able to change password
+ * @access         Public
+ */
+authRouter.put('/forgot', httpsMiddleware, async (req, res) => {});
+
+/**
+ * @route          PUT api/auth/changepassword
+ * @description    User will be able to update/change his/her password,
+ * @access         Private
+ */
+//NOTE : in this method, we have to check user's current password before applying any changes and also we may also need to send verification code to his/her mail before updating the password
+authRouter.put(
+  '/changepassword',
+  httpsMiddleware,
+  authMiddleware,
+  async (req, res) => {}
+);
