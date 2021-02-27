@@ -15,10 +15,11 @@ This is just the backend part of the project, a good part of the FrontEnd comple
 
 #### For run the program, add default.json file to config folder and add the following :
 
-{
+``` {
   "mongoURI": "ADD YOUR MONGO DB URI",
   "jwtSecret": "Create Your jwtSecret Key",
   "sendGridAPIKeyId": "Add Your send Grid API key Id",
   "sendGridAPIKey": "Add Your Send Grid API Key"
-}
+} 
+```
 
