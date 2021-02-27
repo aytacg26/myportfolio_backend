@@ -99,6 +99,8 @@ const PostSchema = new mongoose.Schema({
   },
 });
 
+//TODO : TEST Limit Functions for Likes, Images and Shares
+
 function likesLimit(val) {
   val.length <= 160000;
 }
