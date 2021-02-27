@@ -10,8 +10,8 @@ A post must contain following data; for some of the data, we may seperate the co
     1.4. User avatar
 
 5- Date of Post (0.03Kb)
-6- Post Type (Drop Down => Article, Conference, Portfolio, Tutorial, Promotion) One of them will be selected by user (max size : 0.01Kb)
-7- Post Content Link (For Conferences, Tutorials, Portfolio, Promotions and even for Articles, user may add a link to the webpage of posted material) (0.132Kb)
+6- Post Type (Drop Down => Article, Conference (removed from posts, added to events), Portfolio, Tutorial (kind of article), Promotion) One of them will be selected by user (max size : 0.01Kb)
+7- Post Content Link (For  Tutorials, Portfolio, Promotions and even for Articles, user may add a link to the webpage of posted material) (0.132Kb)
 8- Image Links Array (Max Number of allowed Images : 20) (Max expected link size : 0.132Kb/Image, total : 2.64Kb)
 9- Number of Likes (Counter) (This increase by 1 in each like and will decrease in each dislike)
 10- Likes Object Array (I have to think about on this, because for each like we will need some data and if a post liked by thousands of people, the size of post may increase unexpectedly)
@@ -124,6 +124,7 @@ Overall Total : 14.35Mb (Almost reached to the max limit)
 
 
 ___________________________________________________________________________________ NEW PART ______________________________________________________________________________________________________________
+REVISIONS :
 
 About Type and Post Content Link :
 6- Post Type (Drop Down => Write Article, Article, Conference, Portfolio, Tutorial, Promotion) One of them will be selected by user (max size : 0.01Kb)
@@ -140,6 +141,35 @@ advertisements and it may contain video (Max size 20Mb), a link to the page of a
 
 When we consider this structure, the size and contents of Post Model will increase!!
 
+Post Type : Write Artice
+Write Artice will contain => title, text, date, author data,                may contain => image(s), link
+
+Post Type : Share Article
+Article will contain => title, summary (text), date, user data, link        may contain => image(s)
+
+Post Type : Portfolio
+Portfolio will contain => date, user data, image(s)                         may contain => link, title, text
+
+Post Type : Conference / Event (will not take place in Posts.) REMOVED
+Conference will contain => date, user data, conference/event details, title              may contain => link, text and image(s)
+
+Post Type : Tutorial
+In general, tutorial can be a link, can be a type of article, may contain intro video and may have pictures too.
+For this reason, this will take place under Write Article and user will be able to share link of tutorial too.
+
+Post Type : Promotion
+Promotion will contain => date, user data, image(s), title                  may contain => link, text
+
+Should we add Conference to Posts or It will be better to create another model for Events?? Share an Event will be better option
+For post model, we will need custom validations, for example, if postType is a conference, conference details and title will be required. User may or may not share a long text about conference and may or may
+not share a link (TODO : work on details, necessities on Conference Subject. It may be better to give a selection to user to put RSVP button and get a list of users who would like to attend, like events of the Facebook )
+In such case, we will need to collect the data of users who will attend to the Conference and hence this will require an optional RSVP form creation for such posts. Let's say, the one who shared the Conference, may 
+need the email address, full name, profession etc. (we may give these data in case of RSVP but we need to consider privacy of users.))
+
+For events/conferences, we will create another model for attendees?? Should we?? 
+Conference will be an event and for conferences or similar subjects, there will be events model and events will be posted seperately. It will be under posts but will be in different model, 
+For posts, there won't be drop down for Post type but buttons/cards for each type. Share Article, Portolio, Write Article and Promotion can take place under post model but for Events, we will
+have different structure.
 
 _______________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
