@@ -31,7 +31,7 @@ const PostSchema = new mongoose.Schema({
         },
         imageLink: {
           type: String,
-          maxLength: 120,
+          maxLength: 220,
         },
       },
     ],
@@ -91,7 +91,7 @@ const PostSchema = new mongoose.Schema({
   postContentLink: {
     //If user would like to forward to another website for the article, s/he will add the link to postContentLink area
     type: String,
-    maxLength: 120,
+    maxLength: 220,
   },
 
   postPrivacyOptions: {
