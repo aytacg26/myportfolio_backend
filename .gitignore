@@ -1,5 +1,6 @@
 /node_modules
 /config
+/config/default.json
 /cert.pem
 /key.pem
 /keytmp.pem
