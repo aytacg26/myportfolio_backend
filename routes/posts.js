@@ -11,10 +11,9 @@ export const postsRouter = express.Router();
  * @description     Create new Post
  * @access          Private
  */
-
+//TODO : Check all validations, for now, current validations tested and they are ok!!
 postsRouter.post(
   '/',
-
   httpsMiddleware,
   authMiddleware,
   oneOf([check('x-auth-token').exists()]), //Not necessary, authMiddleware checks for it
