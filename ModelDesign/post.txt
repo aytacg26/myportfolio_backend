@@ -11,13 +11,14 @@ A post must contain following data; for some of the data, we may seperate the co
 
 5- Date of Post (0.03Kb)
 6- Post Type (Drop Down => Article, Conference, Portfolio, Tutorial, Promotion) One of them will be selected by user (max size : 0.01Kb)
-7- Image Links Array (Max Number of allowed Images : 20) (Max expected link size : 0.132Kb/Image, total : 2.64Kb)
-8- Number of Likes (Counter) (This increase by 1 in each like and will decrease in each dislike)
-9- Likes Object Array (I have to think about on this, because for each like we will need some data and if a post liked by thousands of people, the size of post may increase unexpectedly)
-10- Number of Shares (Counter)
-11- Shares Object Array 
-12- Number of Comments (Counter)
-13- Comments Object Array
+7- Post Content Link (For Conferences, Tutorials, Portfolio, Promotions and even for Articles, user may add a link to the webpage of posted material) (0.132Kb)
+8- Image Links Array (Max Number of allowed Images : 20) (Max expected link size : 0.132Kb/Image, total : 2.64Kb)
+9- Number of Likes (Counter) (This increase by 1 in each like and will decrease in each dislike)
+10- Likes Object Array (I have to think about on this, because for each like we will need some data and if a post liked by thousands of people, the size of post may increase unexpectedly)
+11- Number of Shares (Counter)
+12- Shares Object Array 
+13- Number of Comments (Counter)
+14- Comments Object Array
 
 Total Expected Size (except Likes Object Array, Shares Object Array, Comments Object Array ) : 12.10Kb * 15% unexpected size => 13.92Kb
 (For each counter we assume the counter number is 999Million and hence 3 x 0.00878Kb = 0.026Kb)
@@ -109,13 +110,41 @@ C - COMMENTS OBJECT ARRAY :
 
 
 
+
+
 With this amounts, maximum size of a post will be : (Note, shares and likes will be fetched whenever a user clicks on the number of likes or number of shares, for this reason, when we fetch a post
 which reached to the maximum amount, we will only fetch base size that is around 13.92 kb per post but on DB, the max size of a post document cannot be above 16Mb)
 
-Base Size : 13.92 Kb
+Base Size : 14.05 Kb
 Like Objects Array : 160000 x 0.069 Kb = 10.78Mb
 Share Objects Array : 25000 x 0.069 Kb = 1.68Mb
 Total : 12.48Mb
 unexpected size : 15%
 Overall Total : 14.35Mb (Almost reached to the max limit)
+
+
+___________________________________________________________________________________ NEW PART ______________________________________________________________________________________________________________
+
+About Type and Post Content Link :
+6- Post Type (Drop Down => Write Article, Article, Conference, Portfolio, Tutorial, Promotion) One of them will be selected by user (max size : 0.01Kb)
+7- Post Content Link (For Conferences, Tutorials, Portfolio, Promotions and even for Articles, user may add a link to the webpage of posted material) (0.132Kb)
+
+Whenever a user click to new post, s/he will have options to select about the post content. Currently, these options assumed to be Write Article, Article, Conference, Portfolio, Tutorial and Promotion,
+In case the user would like to write article, s/he will be forwarded Write Article Page and in this page, s/he will be able to add images, title, and text of article. On the other hand, If s/he selects Article,
+s/he may add image(s), a summary and the link of main article (in other site, this will not be an local article), if user would like to share about a Conference, s/he must be able to write details of the conference,
+that are place of the conference, date of the conferece, subject of the conference and also link for main page of conference if any and picture/pictures about conference (a flyer etc.) plus a text, that may give some 
+details about conference. Apart from Articles and Conference, a user may want to share pictures about his/her portfolio or his/her latest work (design), in such case, user will be able to select Portfolio Option and for 
+this option, s/he may have his/her own website (which will be also presented in profile of the user) and s/he may also want to add this link to the post. Also, a user may share a Tutorial Video from Youtube or from any
+video site or from his/her own webpage. For now, we will accept a limited size of video upload, this can be an intro video for tutorial or for conference (acceptable Max size for a video will be 20Mb). Promotions will be 
+advertisements and it may contain video (Max size 20Mb), a link to the page of advertiser and intro text (slogan etc) & title.
+
+When we consider this structure, the size and contents of Post Model will increase!!
+
+
+_______________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+
+Aytaç GÜLEY
+Nicosia, Cyprus
+
 
