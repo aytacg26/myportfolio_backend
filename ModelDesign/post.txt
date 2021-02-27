@@ -57,7 +57,7 @@ C - COMMENTS OBJECT ARRAY :
     > For Likes, we may have two options :
         
         Option 1- we will store up to 160000 likes and will continue to count, after 160000 likes, we will remove oldest like an replace it with the new one,
-        in such case, total size of like may reach 999Million in counter but in database, we will have latest 180000 Likes. But in such case, a person who liked
+        in such case, total size of like may reach 999Million in counter but in database, we will have latest 160000 Likes. But in such case, a person who liked
         the post, will be able to like it again after 160000 like, as we will not be able to check him/her like to see if s/he liked or not. This will be valid
         for extreme cases and if project reaches to exteme cases structure, we may update the structure of the project. In this case, for every like after 150000,
         we will need to find the oldest one, remove it and then we will be able to add the new one, this may cause problems and performance issues 
