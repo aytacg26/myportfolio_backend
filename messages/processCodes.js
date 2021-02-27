@@ -17,6 +17,7 @@ const messageCodes = Object.freeze({
   'User removed from Reject List': 'URFRL',
   'User Added to Blocked List': 'UATBL',
   'User removed from Blocked List': 'URFBL',
+  'Unauthorized Access': 'UA',
 });
 
 export default messageCodes;
