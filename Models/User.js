@@ -148,10 +148,6 @@ const UserSchema = new mongoose.Schema(
   { minimize: false }
 );
 
-function arrayLimit(val) {
-  return val.length <= 2;
-}
-
 const User = mongoose.model('users', UserSchema);
 
 export default User;
