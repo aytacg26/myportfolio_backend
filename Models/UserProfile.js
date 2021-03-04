@@ -5,6 +5,12 @@ const UserProfileSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users',
   },
+  username: {
+    //if a user would like to create a username, s/he will be add a username, availability must be checked!!
+    type: String,
+    minLength: 6,
+    maxLength: 50,
+  },
   website: {
     type: String,
     maxLength: 100,
