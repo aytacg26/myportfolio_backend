@@ -41,3 +41,21 @@ When a user blocks another user/follower, the following processes will take plac
 13- check if there is any ReceivedFollowRequest of user from blocked user and delete it
 14- add BlockedUser to the Blocked User collection of user.
 
+
+
+Entering profile of a user by Id (In this process, we will use semiAuthMiddleware)
+// Check if the user is an authUser or anonymous user
+
+//if user is an anonymous user,
+1- Check if the targetUser with a given Id is exist or not
+2- if Exists, check if the targetUser has private account or not
+3- if targetUser has private accout, forward anonymous user to login page
+4- if targetUser has public account, just show cover page, user avatar, user name and profession and also sign in button
+
+//if user is an authUser
+//if user enters his/her own Id, we need to forward him/her to getMyProfile() function (a user may try to enter his profile link from another tab)
+1- Check if the targetUser with a given Id is exist or not
+2- if exists Check if the targetUser has a private account or not
+3- if not a private account, show profile with all details, if it is, just show cover page, user avatar, user name and profession and also follow request button
+4- if account is a private account, check if the authUser is a following of the targetUser or not (If s/he is a following of the authUser, show profile, if not or even if s/he is a follower
+and has private account just show cover page, user avatar, user name and profession and a follow request button)
