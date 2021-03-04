@@ -1,0 +1,196 @@
+A User Profile will contain the following details and apart from those details, as the main idea of the project suggests, user must have a section for his/her portfolio.
+In this study, we need to findout the max possible size of the userProfile under the 16Mb document constraint and if all details has tendency to exceed 16Mb,
+we will create a seperate collection for portfolios and user will have a document for each portfolio subject:
+
+_______________________________________________________________________________________________________________________________
+userId expected max size : 0.04 kb x 15% = 0.046 Kb
+
+website url expected max size : 0.0977 kb x 15% = 0.112 Kb
+
+location (country) max expected size : 0.0723 kb x 15% = 0.083 Kb
+___________________________________________________________________________________________________________________________________________________________________
+contactInfo => {
+    Street : 0.12 Kb
+    City: 0.03 Kb
+    postCode: 0.015 kb
+    fullAddress: 0.244 kb
+    mobile: 0.015 kb
+    homePhone: 0.015 kb
+}
+
+ Total Expected Size : 0.439 Kb x 15% unexpected size => 0.505 Kb
+_____________________________________________________________________________________________________________________________________________________________________
+
+It is assumed that the user knows 20 languages, this has low probability but for some people it may be possible
+languages => {
+    language : 0.029 x 20 kb = 0.58 Kb
+    ISO639Code : 0.002 x 20 kb = 0.04 Kb
+}
+
+Total Expected Size : 0.62 Kb x 15% unexpected size => 0.713 Kb
+______________________________________________________________________________________________________________________________________________________________________
+
+ex: Frontend and Backend Developer (FullStack Developer) (52 characters, we will assume a max length of 70 characters)
+status : 0.0683 kb
+
+_________________________________________________________________________________________________________________________________________________________________________
+
+Skills field will contain the skills of the user as an string array, a user may have : 
+[
+    "ReactJS", "Angular", "NodeJS", "HTML", "CSS", "Vanilla JavaScript", "JQuery", "SASS", "MondoDB", "Mongoose", "ExpressJS", "GraphQL", "Redux", "React-Redux", "Python", 
+"ASP.NET", "C#", "RESTful API", "React Native", "MaterialUI", "Bootstrap"
+] 
+and maybe more, we will assume that the length of array may reach up to 50 and will make calculation on that, in such case, the char size of array may rich
+upto 500 and we will assume size form this amount
+
+skills: 0.49 kb
+
+_________________________________________________________________________________________________________________________________________________________________________
+
+birthDate: 0.03 kb,
+
+__________________________________________________________________________________________________________________________________________________________________________
+
+  githubusername: 0.04 Kb
+__________________________________________________________________________________________________________________________________________________________________________
+  tellAboutYourself: 7.81 kb (Max)
+
+_____________________________________________________________________________________________________________________________________________________________________
+A user may have at most 25 experience listed, this has low probability but for the sake of project calculation we will assume there will be 25 listed experience of
+each user. For each experience, user must enter title (60), company (150), location (75), fromDate, toDate (if it is not current job), a boolean true/false if it is the current job of
+the user, a short description about the job (we will limit this to 1000 characters)
+
+  experience => {
+    [
+      {
+        title: 0.06Kb x 25 = 1.5 Kb
+        company: 0.15Kb x 25 = 3.75 kb
+        location: 0.073 x 25 = 1.825 kb
+        from: 0.03 x 25 = 0.75 kb
+        to: 0.03 x 25 = 0.75 kb
+        current: 0.01 x 25 = 0.25 kb
+        description: 0.98 x 25 = 24.5 kb
+        salaryRange: 0.02 x 25 = 0.5 kb
+      },
+    ],
+
+    Total Expected Size : 33.075 Kb x 15% unexpected size => 38.04 Kb
+
+_____________________________________________________________________________________________________________________________________________________________________
+For education, we will assume that a user will list his/her high scool, university and may be second university, master degree and may be second master degree and 
+doctorate. In this case, max will be 6 education, we limited to 8 but 6 will be more than enough and hence we will make calculations on 6 education details.
+
+Education : {
+
+    school: 0.09 kb x 6 = 0.54 Kb,
+    degree: 0.03 kb x 6 = 0.18 Kb,
+    fieldOfStudy : 0.06 kb x 6 = 0.36 Kb,
+    from:0.03 kb x 6 = 0.18 Kb,
+    to: 0.03 kb x 6 = 0.18 Kb,
+    current:0.01 kb x 6 = 0.06 Kb,
+    description:0.98 kb x 6 = 5.88 Kb 
+
+}
+   
+
+    Total Expected Size : 7.38 Kb x 15% unexpected size => 8.49 Kb
+_______________________________________________________________________________________________________________________________________________________________________
+  A user may have lots of certificates from tranings, organizations, institutes etc. We limit this size to 35, one may have more than this amount but I think, even
+  35 is more than enough on a CV if they are related to the target job(s). For each data, we limit the size of characters and we will calculate on them plus we will assume
+  that users will add up to 35 certificates. subject (80 chars), issuingOrganization (100 chars), a description for a certificate may not be required as the subject gives
+  the idea but in any case, we add and we will limit the char size of description to 400 characters
+  
+  certificates: {
+    [
+      {
+        subject: 0.08kb x 35 = 2.8 Kb
+        issuingOrganization: 0.097kb x 35 = 3.39 Kb
+        issueDate: 0.03 kb x 35 = 1.05 Kb
+        expirationDate: 0.03 kb x 35 = 1.05 Kb
+        doesExpire: 0.01 kb x 35 = 0.35 Kb
+        description: 0.39 x 35 = 13.65 Kb
+      },
+    ],
+    
+    Total Expected Size : 22.29 Kb x 15% unexpected size => 25.63 Kb
+______________________________________________________________________________________________________________________________________________________________________________
+A user may have publications and s/he may would like to present them in his/her Profile, under the CV tab, the number of publications is not expected to reach 25 but in any case,
+we limit the number of publications to 25 and we will assume that a user have 25 and will present all. The publication section will contain title (120 chars), publishedDate, language,
+a 2000 character description
+
+  publications: {
+    [
+      {
+        title: 0.12 Kb x 25 = 3 Kb
+        publishedDate: 0.03 Kb x 25 = 0.75 Kb
+        language: 0.03 Kb x 25 = 0.75 Kb
+        description: 1.95 Kb x 25 = 48.75 Kb
+      },
+    ],
+  
+  },
+
+   Total Expected Size : 53.25 Kb x 15% unexpected size => 61.23 Kb
+________________________________________________________________________________________________________________________________________________________________________________________
+    For social, we will only take the users' social link as data, max limits for these string data is known and we will calculate max size of this object from this data.
+    youtube : Max. 100 chars, twitter : Max. 40 chars, facebook : Max. 80 chars, linkedin : Max. 100 chars, instagram : Max. 100 chars
+
+
+  social: {
+    youtube: 0.098 Kb
+    twitter: 0.04 Kb
+    facebook: 0.08 Kb
+    linkedin: 0.098 Kb
+    instagram: 0.098 Kb
+  },
+
+  Total Expected Size : 0.414 Kb x 15% unexpected size => 0.48 Kb
+_________________________________________________________________________________________________________________________________________________________________________________________
+For article posts, there will be no limit for a user, an article will take place in posts collection but under the profile of the user, we will present the Article Details and links of the
+articles of the user. Articles won't be stored in this collection but their Id's will take place. If we assume that a well equiped user writes 2 articles (tutorial or something about in his/her field) 
+per week in 1 year, s/he will be able to write 96 articles, let's assume that the life of this project is 30 years and the user who writes these articles, started to write form the first day of
+the project (it will be very unexpected and interesting situation and it is possible to say, there is no such probability, but let's say s/he started from the first day). In such case, a 
+user will be able to write at least 2880 articles. Size of each Id is expected to be 0.034 Kb. In this case, Maximum Expected Size of articlePosts array is 98.43 Kb and with 15% unexpected size
+it won't be higher than 113.20 Kb
+
+
+  articlePosts: [
+    {
+      postId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'posts',
+      },
+    },
+  ],
+
+Total Expected Size : 98.43 x 15% unexpected size => 113.20 Kb
+________________________________________________________________________________________________________________________________________________________________________________________________
+CreatedAt : 0.03 Kb
+
+
+Expected Total Size of the Document : 256.997 Kb
+Total Size of A Document : 16 Mb
+Remaining Size : 15.74 Mb
+
+In this case, it seems possible to add portfolio of a user to the UserProfile Document. First, we need to decide what data will be required for a Porfolio Subject and size of each possible 
+portfolio. In any case, we will limit the number of pictures to 25 for each portfolio subject, number of videos if any 5.
+
+Required Data and Expected Sizes :
+Title (100 chars)                       : 0.098 Kb
+Description (8000 chars)                : 7.81 Kb
+Subject (100 chars)                     : 0.098 Kb
+Target Audience of Project (200 chars)  : 0.195 Kb
+Date of Creation (date)                 : 0.03 Kb
+Project Duration (1 month, 1 Year etc.) : 0.012 Kb
+Tools Used (an array)                   : 0.40 Kb
+Images Array (25 image link)            : 6.52 Kb
+Videos Array (5 video link)             : 1.30 Kb
+Website Link (if Any)                   : 0.098 Kb
+Total                                   : 16.56 Kb
+Unexpected Size                         : 15%
+Overall Total                           : 19.04 Kb
+
+In this case, a user will be able to prepare a good amount of portolio subject in his/her profile but in any case, we will limit this to 100
+With this limit, total size of whole portfolio will be 1.85 Mb
+For images and videos AWS S3 will be Used
+For 1 User, max amount of images in complete portolio will be 2500, acceptable max size for each image will be 3Mb (expected Max AWS cost per Month per User : $0.18 USD)
