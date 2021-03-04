@@ -370,3 +370,7 @@ function imageLimit(val) {
 function videoLimit(val) {
   val.length <= 5;
 }
+
+const UserProfile = mongoose.model('userprofiles', UserProfileSchema);
+
+export default UserProfile;
