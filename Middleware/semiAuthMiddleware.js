@@ -2,18 +2,23 @@ import jwt from 'jsonwebtoken';
 import config from 'config';
 import { errorMessage } from '../messages/messages.js';
 
-const authMiddleware = (req, res, next) => {
+//This middleware will be used in some cases to prevent some users from entering complete data
+const semiAuthMiddleware = (req, res, next) => {
   const token = req.header('x-auth-token');
 
   if (!token) {
-    return errorMessage(res, 401, 'No token found, Access is denied');
+    req.isAuthUser = false;
+    next();
+    return;
   }
 
   try {
     const decoded = jwt.verify(token, config.get('jwtSecret'));
     req.user = decoded.user;
+    req.isAuthUser = true;
     next();
   } catch (error) {
+    //If a user uses an fake token, we must stop him/her to enter in any case.
     return errorMessage(
       res,
       401,
@@ -22,4 +27,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-export default authMiddleware;
+export default semiAuthMiddleware;
