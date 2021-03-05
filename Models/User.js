@@ -69,6 +69,58 @@ const UserSchema = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
+      showFollowings: {
+        everyone: {
+          type: Boolean,
+          default: true,
+        },
+
+        onlyMe: {
+          type: Boolean,
+          default: false,
+        },
+
+        onlyFollowers: {
+          type: Boolean,
+          default: false,
+        },
+
+        onlyFollowings: {
+          type: Boolean,
+          default: false,
+        },
+
+        onlyFollowersAndFollowings: {
+          type: Boolean,
+          default: false,
+        },
+      },
+      showFollowers: {
+        everyone: {
+          type: Boolean,
+          default: true,
+        },
+
+        onlyMe: {
+          type: Boolean,
+          default: false,
+        },
+
+        onlyFollowers: {
+          type: Boolean,
+          default: false,
+        },
+
+        onlyFollowings: {
+          type: Boolean,
+          default: false,
+        },
+
+        onlyFollowersAndFollowings: {
+          type: Boolean,
+          default: false,
+        },
+      },
       postSharing: {
         type: Boolean,
         default: true,
