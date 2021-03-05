@@ -46,6 +46,8 @@ When a user blocks another user/follower, the following processes will take plac
 Entering profile of a user by Id (In this process, we will use semiAuthMiddleware)
 // Check if the user is an authUser or anonymous user
 
+
+
 //if user is an anonymous user,
 1- Check if the targetUser with a given Id is exist or not
 2- if Exists, check if the targetUser has private account or not
@@ -59,3 +61,13 @@ Entering profile of a user by Id (In this process, we will use semiAuthMiddlewar
 3- if not a private account, show profile with all details, if it is, just show cover page, user avatar, user name and profession and also follow request button
 4- if account is a private account, check if the authUser is a following of the targetUser or not (If s/he is a following of the authUser, show profile, if not or even if s/he is a follower
 and has private account just show cover page, user avatar, user name and profession and a follow request button)
+
+//This will be valid when a user clicks on the number of followers or number of followings, we may show number of followings or number of followers
+//But being clickable we depend on this privacy
+5- Check following and follower privacy status of the targetUser, if can be public, it can be private even if the account is public;
+In such case, even if the 
+
+What else we need to check
+ //Find if the auth user has targetUser in his/her followings:
+ //Find if the auth user is in blocked users of targetUser or targetUser is in blocked users of authUser
+ //Find if the authUser has a following request to targetUser (If yes, instead of follow button, we need to show, follow request send button, and if authUser clicks on it, follow request must be cancelled)
