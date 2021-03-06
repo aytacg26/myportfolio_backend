@@ -10,12 +10,13 @@ const UserProfileSchema = new mongoose.Schema({
     type: String,
     minLength: 6,
     maxLength: 50,
+    unique: true,
   },
   website: {
     type: String,
     maxLength: 100,
   },
-  location: {
+  country: {
     type: String,
     maxLength: 75,
   },
@@ -27,7 +28,7 @@ const UserProfileSchema = new mongoose.Schema({
       },
       city: {
         type: String,
-        maxLenght: 30,
+        maxLenght: 40,
       },
       postCode: {
         type: String,
@@ -338,6 +339,8 @@ const UserProfileSchema = new mongoose.Schema({
     },
   },
   coverPhoto: {
+    //we need to get Id of cover photo from UserImages and assign here. Cover photo and avatar should be uploaded seperately
+    //That is, should be saved with different API and assigned to here...
     coverPhotoImageId: {
       type: String,
     },
