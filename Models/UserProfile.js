@@ -331,6 +331,17 @@ const UserProfileSchema = new mongoose.Schema({
       maxLength: 100,
     },
   },
+  avatar: {
+    //when user upload avatar, avatar in user model should also change
+    avatarImageId: {
+      type: String,
+    },
+  },
+  coverPhoto: {
+    coverPhotoImageId: {
+      type: String,
+    },
+  },
   posts: [
     {
       postId: {
