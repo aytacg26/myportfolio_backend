@@ -215,9 +215,37 @@ const getUserProfileById = async (req, res) => {
   }
 };
 
+/**
+ * TODO: Not Completed
+ * @route           POST api/profile/user/coverphoto
+ * @description     Upload Cover Photo of User
+ * @access          Private
+ */
+const uploadUserCoverPhoto = async (req, res) => {};
+
+/**
+ * TODO: Not Completed
+ * @route           POST api/profile/user/avatar
+ * @description     Upload Avatar of User
+ * @access          Private
+ */
+const uploadUserAvatar = async (req, res) => {};
+
+/**
+ * @route         POST api/profile
+ * @description   Create Profile of User
+ * @access        Private
+ */
+const createProfile = async (req, res) => {
+  res.send(req.body);
+};
+
 const UserProfileController = Object.freeze({
   getMyProfile,
   getUserProfileById,
+  uploadUserCoverPhoto,
+  uploadUserAvatar,
+  createProfile,
 });
 
 export default UserProfileController;
