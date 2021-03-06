@@ -3,6 +3,7 @@ import { check, validationResult } from 'express-validator';
 import UserController from '../Controllers/UserController/UserController.js';
 import authMiddleware from '../Middleware/authMiddleware.js';
 import httpsMiddleware from '../Middleware/httpsMiddleware.js';
+import UserImage from '../Models/UserImage.js';
 
 export const usersRouter = express.Router();
 
@@ -137,3 +138,48 @@ usersRouter.put(
     UserController.privacySettings(req, res);
   }
 );
+
+/**
+ * @route         POST api/users/uploadimage
+ * @description   Test purpose, will be deleted
+ * @access        Private
+ * JUST FOR TEST PURPOSE, IMAGE UPLOADS TO USERIMAGES WILL FOLLOW THIS STRUCTURE...
+ * IN CASE IT IS COMING FROM PROFILE IMAGE UPLOAD, BOOLEANS WILL TAKE PLACE
+ * IN CASE IT IS COMING FROM COVER UPLOAD, BOOLEANS WILL AGAIN TAKE PLACE
+ * IF USER HAS COVER PAGE AND UPLOAD COMES FROM COVER UPLOAD, BOOLEANS WILL BE CORRECTED ACCORDINGLY...
+ */
+
+// usersRouter.post(
+//   '/uploadimage',
+//   httpsMiddleware,
+//   authMiddleware,
+//   async (req, res) => {
+//     const userId = req.user.id;
+
+//     const userImages = await UserImage.findOne({ user: userId });
+
+//     if (!userImages) {
+//       const imageName = 'Kyrenia Beach';
+//       const imageLink =
+//         'www.testlink.com/asaskklklasasas/1212111212111212/jjkaslllasıaıs';
+
+//       const uploadedImage = new UserImage();
+//       uploadedImage.user = userId;
+
+//       uploadedImage.images.push({ imageName, imageLink });
+
+//       await uploadedImage.save();
+
+//       return res.json(uploadedImage);
+//     } else {
+//       const imageName = 'My New Image';
+//       const imageLink = 'www.asasa.com/aasasas/123AYTAC/aytacguley/81828128';
+
+//       userImages.images.push({ imageName, imageLink });
+
+//       await userImages.save();
+
+//       return res.json(userImages);
+//     }
+//   }
+// );
