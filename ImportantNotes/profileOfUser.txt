@@ -1,0 +1,61 @@
+While a user creating his/her profile, we will require :
+Status => (developer, frontend developer, graphic designer etc.)
+Skills => which will be an array of skills ["Javascript", "React",...]
+
+In userProfile, user should be able to add
+> a Username (Not required and must be unique)
+> website (Not required)
+> Location (Not required)
+> Contact Information (this will contain user address, mobile phone and home phone and non of them is required)
+> Languages (an array and in frontend, user will be able to select from drop down and add to the array)
+> birthdate (not required)
+> github username (not required but in case of addition, on profile, his/her last 5 repos will be presented on his/her profile)
+> bio (Tell about Yourself section, but not required)
+> experiences (array, not required)
+> education (array, not required)
+> certificates (array, not required)
+> publications (array, not required)
+> social (array, not required)
+
+all the above data will be added by user when ever s/he wants. On the other hand, user must be able to change profile photo and cover photo from his/her 
+profile. User may upload images while changing or s/he may select one of the images which s/he uploaded when s/he send a post to the site. For this reason,
+we will need to add cover photo link and profile photo link to user profile model. In this case, we will need to have a collection or document about user images
+which will contain userId, an image Id, and whenever user selects a image for his/her cover photo or avatar from the uploaded images, we will be able to reach
+his/her photos and also in any case, to reach user photos, a record of images must exist to reach them by userId and imageId. To do so, we have to decide, 
+
+- Should we create a new collection for images or
+- can we store images under user or user profile as an array of object?
+
+We know that, for each post a user will be able to share up to 20 images and for each portfolio, s/he will be able to upload 25 images.
+If a user posts at least 50 posts with 20 images and at most 100 portfolio with 25 images, s/he will have 3500 images in his/her account
+for each image link calculated size (string) is 0.261 Kb, which means total size for such a case will be 912 Kb. But let's say, a user
+post 800 posts (extreme situation), total number of images will be 18500 and total size will be around 4.71 Mb. For each image, we will need
+to add date, name, and id. In this case, image object will be as follows (Note : and also, we will need to remove link and name from posts model and add
+imageIds to the posts)
+
+image:{
+    imageId (0.046 Kb),
+    imageName (0.12 Kb),
+    uploadDate (0.03 Kb),
+    imageLink (0.26 kb)
+    wasCoverImage (0.03)
+    wasProfileImage (0.03)
+    isExistingCoverImage (0.03)
+    isExistingProfileImage (0.03)
+}
+
+The expected size of each image object will be 0.576 Kb x 15% unexpected size => 0.6624Kb and hence total size in extreme cases will reach 11.96Mb
+which may create a document size limit exceed risk.
+
+
+
+Under these conditions; we will create a userImages Collection and images of user will be stored in a document per user, document will contain userId and
+images array which will contain image objects. In such case, when we subtract userId size from document max size, we will have 16383.95 Kb size for
+images array and hence, it will be possible to store up to 24000 images for a user. (we will limit this to 22000)
+(max cost of a user because of 22000 images will be $0.532 USD per month (AWS S3) (assumed size of each image : 3Mb ))
+
+Note : wasCoverImage and wasProfileImage will be user to show those images seperate in images part of the user. In all images, s/he will be able to 
+see all images, under cover images section, s/he will be able to see all cover images s/he used and existing cover image and also under profile images
+section s/he will be able to see all profile images s/he used and also existing profile image
+
+In this case, we will create a Model for UserImages 
