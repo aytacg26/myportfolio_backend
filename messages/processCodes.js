@@ -19,6 +19,8 @@ const messageCodes = Object.freeze({
   'User removed from Blocked List': 'URFBL',
   'Unauthorized Access': 'UA',
   'Profile Not Exists': 'PNE',
+  'Username Error': 'UNE',
+  'Not Valid Website': 'NVW',
 });
 
 export default messageCodes;
