@@ -235,6 +235,20 @@ const removeFollower = async (req, res) => {
       );
     }
 
+    const userFollower = await Follower.findOne({
+      user: req.user.id,
+      'follower.userId': followerId,
+    });
+
+    if (!userFollower) {
+      return errorMessage(
+        res,
+        401,
+        'Not Authorized',
+        messageCodes['Unauthorized Access']
+      );
+    }
+
     //Remove follower from the numOfFollowers of user
     const newFollowerSize = authUser.numOfFollowers - 1;
     authUser.numOfFollowers = newFollowerSize;
@@ -820,6 +834,20 @@ const deleteUserFromRejectList = async (req, res) => {
     //1-Remove requester and auth user document from rejectedFollowRequests collection (user is the auth user and requester is the rejectedUser in the document)
     const authUserId = req.user.id;
     const requesterId = req.params.idOfRequester;
+
+    const rejectedFollower = RejectedFollower.findOne({
+      user: authUserId,
+      'rejectedUser.userId': requesterId,
+    });
+
+    if (!rejectedFollower) {
+      return errorMessage(
+        res,
+        401,
+        'Not Authorized',
+        messageCodes['Unauthorized Access']
+      );
+    }
 
     await RejectedFollower.findOneAndDelete({
       user: authUserId,
